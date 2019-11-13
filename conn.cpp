@@ -37,7 +37,7 @@ namespace ck
     void TcpConn::handleRead(const TcpConnPtr& conn)
     {
         // 将数据读到readBuf中
-        readBuf.getDataFromFd(conn->channel->getFd());
+        fillReadBuf();
         if (readcb)
         {
             readcb(conn);
@@ -115,5 +115,40 @@ namespace ck
             }
         }
         return sended;
+    }
+    void TcpConn::fillReadBuf()
+    {
+        static char _buf[256];
+        int n;
+        while (1)
+        {
+            n = ::read(channel->getFd(), _buf, 256);
+            if (n < 0)
+            {
+                // 被中断打断
+                if (errno == EINTR)
+                    continue;
+
+                // LT模式读取完毕
+                if (errno == EAGAIN)
+                    break;
+            }
+            // 对端断开连接
+            else if (n == 0)
+            {
+                close();
+                break;
+            }
+            else
+            {
+                readBuf.writeIn(_buf, n);
+            }
+        }
+    }
+    void TcpConn::close()
+    {
+        readcb=writecb=nullptr;
+        delete channel;
+        channel=nullptr;
     }
 } // namespace ck

@@ -71,6 +71,8 @@ public:
 
     std::string getInput();
 
+    void close();
+
 
 
 
@@ -90,8 +92,10 @@ public:
         return conn;
     }
     private:
-    // 封装系统调用write，尝试尽可能写，返回实际写的字节数
+    // 尝试尽可能发送，返回最终发送的字节数
     size_t _write(const char* buf,size_t len);
+    // 尽可能读取到readBuf中
+    void fillReadBuf();
 };
 
 } // namespace ck

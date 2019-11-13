@@ -21,7 +21,7 @@ int TcpServer::bind(const std::string &host, unsigned short port, bool reusePort
     r = ::bind(fd, (sockaddr*)&addr.getAddr(), sizeof(sockaddr));
     if (r)
     {
-        close(fd);
+        ::close(fd);
         LOG_ERROR("bind");
         return errno;
     }

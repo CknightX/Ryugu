@@ -20,7 +20,6 @@ void Buffer::writeIn(const char *str, size_t len)
     if (bg != 0 && remain < len)
     {
         auto sz = size();
-        LOG("size=%d", sz);
         std::copy(buf.begin() + bg, buf.begin() + ed, buf.begin());
         bg = 0;
         ed = bg + sz;
@@ -68,8 +67,14 @@ void Buffer::getDataFromFd(int fd)
             if (errno==EAGAIN)
                 break;
         }
-
-        writeIn(_buf,n);
+        else if (n==0)
+        {
+            
+        }
+        else
+        {
+            writeIn(_buf, n);
+        }
     }
 }
 

@@ -4,10 +4,10 @@
 namespace ck
 {
 Channel::Channel(EventHandler* _eh,int _fd, uint32_t _events)
-    :eh(_eh),fd(_fd),events(_events)
+    :eh(_eh),fd(_fd),events(_events),poller(_eh->poller)
 {
     LOG("new Channel,fd=%d",_fd);
-    _eh->poller->addChannel(this);
+    poller->addChannel(this);
 }
 
 
@@ -44,5 +44,15 @@ void Channel::enableReadWrite(bool readable,bool writeable)
     enableWrite(writeable);
 }
 
+
+void Channel::close()
+{
+    LOG("close channel fd %d",fd);
+    poller->removeChannel(this);
+    ::close(fd);
+    fd=-1;
+    // ?
+    //handleRead();
+}
 
 }

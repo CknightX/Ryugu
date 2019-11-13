@@ -62,22 +62,18 @@ Epoll::Epoll()
 		int r=epoll_ctl(epollFd,EPOLL_CTL_ADD,ch->getFd(),&ev);
 		if (r<0)
 		{
-			LOG("epoll_ctl add failed %d",errno);
+			LOG_ERROR("epoll_ctl add failed %d",errno);
 			return;
 		}
 	}
 
 	void Epoll::removeChannel(Channel* ch)
 	{
-		delete ch;
 		liveChannels.erase(ch);
-		for (int i=lastActive;i>=0;--i)
+		int r=epoll_ctl(epollFd,EPOLL_CTL_DEL,ch->getFd(),NULL);
+		if (r<0)
 		{
-			if (ch==activeChannels[i].data.ptr)
-			{
-				activeChannels[i].data.ptr=NULL;
-				break;
-			}
+			LOG_ERROR("epoll_ctl del failed %d",errno);
 		}
 	}
 	void Epoll::loopOnce(int waitMs)
@@ -89,18 +85,25 @@ Epoll::Epoll()
 
 			if (ch)
 			{
-				LOG("new events fd=%d",ch->getFd() );
 				auto events = ch->getEvents();
-				if (events&cstWriteEvent)
+				// 对端断开
+				// if (events&cstClientLost)
+				// {
+				// 	LOG("lost.");
+				// 	removeChannel(ch);
+				// 	return;
+				// }
+				if (events & cstWriteEvent)
 				{
+					LOG("new write event.");
 					ch->handleWrite();
 				}
-				if (events&cstReadEvent)
+				if (events & cstReadEvent)
 				{
-					LOG("read event");
+					LOG("new read event.");
 					ch->handleRead();
 				}
 			}
 		}
 	}
-}
+	} // namespace ck
