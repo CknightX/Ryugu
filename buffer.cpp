@@ -50,32 +50,5 @@ std::string Buffer::readOutAsString(size_t len)
     return tmp;
 }
 
-void Buffer::getDataFromFd(int fd)
-{
-    static char _buf[256];
-    int n;
-    while(1)
-    {
-        n=read(fd,_buf,256);
-        if (n<0)
-        {
-            // 被中断打断
-            if (errno==EINTR)
-                continue;
-
-            // LT模式读取完毕
-            if (errno==EAGAIN)
-                break;
-        }
-        else if (n==0)
-        {
-            
-        }
-        else
-        {
-            writeIn(_buf, n);
-        }
-    }
-}
 
 } // namespace ck

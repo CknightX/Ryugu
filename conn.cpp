@@ -9,7 +9,7 @@ namespace ck
 
     }
     // 作为服务端，创建TcpConn发生在accept之后，握手阶段已经结束
-    void TcpConn::attach(EventHandler* _handler, int fd, Ipv4Addr _local, Ipv4Addr _peer)
+    void TcpConn::attach(EventHandler* _handler, int fd, net::Ipv4Addr _local, net::Ipv4Addr _peer)
     {
         LOG("attch fd=%d",fd);
 
@@ -79,7 +79,7 @@ namespace ck
     {
         send(str.c_str(),str.size());
     }
-    std::string TcpConn::getInput()
+    std::string TcpConn::getInput() 
     {
         return readBuf.readOutAsString(readBuf.size());
     }
@@ -136,6 +136,7 @@ namespace ck
             // 对端断开连接
             else if (n == 0)
             {
+                // 关闭tcp连接，释放channel
                 close();
                 break;
             }

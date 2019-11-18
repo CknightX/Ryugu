@@ -32,7 +32,7 @@ namespace ck
 				:lastActive(-1)
 			{
 				static std::atomic<int64_t> _id(0);
-				id=++id;
+				id=++_id;
 			}
 
 			virtual void addChannel(Channel* event)=0;

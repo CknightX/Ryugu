@@ -5,6 +5,8 @@
 
 namespace ck
 {
+    namespace net
+    {
     class Ipv4Addr final
     {
         public:
@@ -27,4 +29,5 @@ namespace ck
 
     int setNonBlocking(int fd);
 
+    }
     } // namespace ck

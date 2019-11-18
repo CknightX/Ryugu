@@ -38,7 +38,7 @@ public:
     EventHandler *handler;
     Channel *channel;
     State state;
-    Ipv4Addr local,peer;
+    net::Ipv4Addr local,peer;
     // 使用者定义的回调函数
     TcpCallBack readcb, writecb;
 
@@ -62,14 +62,15 @@ public:
     void reconnect();
 
     // 关联一个fd
-    void attach(EventHandler* _handler, int fd, Ipv4Addr _local, Ipv4Addr _peer);
+    void attach(EventHandler* _handler, int fd, net::Ipv4Addr _local, net::Ipv4Addr _peer);
 
     // 发送数据
     void send(const std::string& str);
     void send(const char* buf,size_t len);
     void send(const char* s){send(s,strlen(s));}
 
-    std::string getInput();
+    // 将当前readBuf中的所有数据以string返回
+    std::string getInput() ;
 
     void close();
 
@@ -85,7 +86,7 @@ public:
     }
 
     template <typename C = TcpConn>
-    static TcpConnPtr createConnection(EventHandler *_handler, int fd, Ipv4Addr local, Ipv4Addr peer)
+    static TcpConnPtr createConnection(EventHandler *_handler, int fd, net::Ipv4Addr local, net::Ipv4Addr peer)
     {
         TcpConnPtr conn(new C);
         conn->attach(_handler, fd, local, peer);

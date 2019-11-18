@@ -23,8 +23,6 @@ namespace ck
 
         void consume(size_t len){bg+=len;}
 
-        // 从fd中读取字符流到buffer
-        void getDataFromFd(int fd);
 
         void clear();
 
@@ -32,7 +30,7 @@ namespace ck
 
         // 获取字符串指针
         const char* getData()const {return buf.data(); }
-        bool empty(){return size()==0;}
+        bool empty() const {return size()==0;}
         
 
         private:

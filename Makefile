@@ -39,7 +39,7 @@ net.o : net.cpp
 
 clean:
 	rm -f *.o
-	rm -f test
+	rm -f test echo
 
 run :
 	./test

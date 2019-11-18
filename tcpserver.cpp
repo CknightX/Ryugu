@@ -5,7 +5,7 @@
 #include <cstring>
 namespace ck
 {
-            extern Epoll* globalEpoll;
+extern Epoll *globalEpoll;
 
 TcpServer::TcpServer(EventHandler *_handler)
     : handler(_handler), listenChannel(nullptr), createCB([] { return TcpConnPtr(new TcpConn); })
@@ -15,7 +15,7 @@ TcpServer::TcpServer(EventHandler *_handler)
 int TcpServer::bind(const std::string &host, unsigned short port, bool reusePort)
 {
     int r;
-    addr = Ipv4Addr(host, port);
+    addr = net::Ipv4Addr(host, port);
     int fd = socket(AF_INET, SOCK_STREAM, 0);
 
     r = ::bind(fd, (sockaddr*)&addr.getAddr(), sizeof(sockaddr));
@@ -26,8 +26,6 @@ int TcpServer::bind(const std::string &host, unsigned short port, bool reusePort
         return errno;
     }
     r = listen(fd, 20);
-    // 设置listen socket为非阻塞，否则会阻塞在accept处
-    setNonBlocking(fd);
 
     listenChannel = new Channel(handler, fd, cstReadEvent);
     listenChannel->setReadCB([this] { handleAccept(); });
@@ -76,8 +74,6 @@ void TcpServer::handleAccept()
 
                 // 将fd与TcpConnection关联起来
                 con->attach(handler, cfd, local, peer);
-                // 设置客户端非阻塞
-                setNonBlocking(cfd);
 
                 // readcb
                 if (readcb)

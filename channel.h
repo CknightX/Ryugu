@@ -27,10 +27,10 @@ namespace ck
 			~Channel(){close();}
 
 		public:
-			int getFd(){return fd;}
+			int getFd() const {return fd;}
 
-			ID getId(){return id;}	
-			uint32_t getEvents(){return events;}
+			ID getId() const {return id;}	
+			uint32_t getEvents() const {return events;}
 
 			// TODO
 			void close();

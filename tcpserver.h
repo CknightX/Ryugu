@@ -40,7 +40,7 @@ namespace ck
         EventHandlers* handlers;
         EventHandler* handler;
 
-        Ipv4Addr addr;
+        net::Ipv4Addr addr;
         Channel* listenChannel;
 
         // readcb即使用者设定的可读回调函数
