@@ -99,7 +99,7 @@ namespace ck
             {
                 if (errno==EINTR)
                     continue;
-                // 写缓冲区满
+                // 内核写缓冲区满
                 else if (errno==EAGAIN)
                 {
 
@@ -133,7 +133,7 @@ namespace ck
                 if (errno == EAGAIN)
                     break;
             }
-            // 对端断开连接
+            // 当read返回值为0时说明对端断开连接
             else if (n == 0)
             {
                 // 关闭tcp连接，释放channel

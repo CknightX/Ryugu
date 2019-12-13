@@ -37,19 +37,17 @@ namespace ck
 
 
         private:
-        EventHandlers* handlers;
         EventHandler* handler;
 
         net::Ipv4Addr addr;
         Channel* listenChannel;
 
-        // readcb即使用者设定的可读回调函数
+        // 使用者设定的可读回调函数
         TcpCallBack readcb;
 
         std::function<TcpConnPtr()> createCB;
 
         private:
-        // accept的回调函数，用来绑定在listenChannel的read事件上
         void handleAccept();
 
 

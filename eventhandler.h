@@ -1,10 +1,14 @@
 /*
 EventHandler
-处理Channel与Poller之间的交互，Channel与Poller之间不直接交互
 */
 #pragma once
+#include <memory>
 #include "poller.h"
 #include "debug.h"
+#include "TimerId.h"
+#include "Timestamp.h"
+#include "TimerQueue.h"
+#include "Timer.h"
 
 namespace ck
 {
@@ -12,17 +16,22 @@ namespace ck
 class Channel;
 
 
-// 事件处理器,将事件分发到poller中
+// 事件处理器
 class EventHandler 
 {
     public:
-    EventHandler():isStop(false),poller(PollerFactory::getPoller()){}
-    ~EventHandler(){}
-
+    EventHandler();
+    ~EventHandler();
 
     void loopOnce(int waitMs);
     void loop();
     void stop(){isStop=true;}
+
+    // 定时器任务
+    TimerId runAt(Timestamp time,TimerCallback cb);
+    TimerId runAfter(double delay,TimerCallback cb);
+    TimerId runEvery(double interval,TimerCallback cb);
+
 
 
     public:
@@ -30,6 +39,7 @@ class EventHandler
 
     private:
     bool isStop;
+    std::unique_ptr<TimerQueue> timerQueue;
 
 
 

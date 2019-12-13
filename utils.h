@@ -23,9 +23,12 @@ namespace ck
 
     };
 
+
     std::string strEvents(uint32_t events);
     std::string strErrno(int _errno);
 
+
+    int createTimerfd();
     
 
 }

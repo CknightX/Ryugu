@@ -95,7 +95,7 @@ public:
     private:
     // 尝试尽可能发送，返回最终发送的字节数
     size_t _write(const char* buf,size_t len);
-    // 尽可能读取到readBuf中
+    // 尽可能从读取到readBuf中
     void fillReadBuf();
 };
 

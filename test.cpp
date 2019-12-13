@@ -19,7 +19,5 @@ int main()
         buf.writeIn("1");
 
     LOG("size=%d",buf.size());
-    LOG("cap=%d",buf.buf.capacity());
-
 
 }
