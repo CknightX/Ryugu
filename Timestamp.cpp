@@ -1,4 +1,5 @@
 #include "Timestamp.h"
+#include <sys/time.h>
 
 namespace ck
 {
@@ -9,5 +10,12 @@ namespace ck
         int64_t microseconds = microSecondsSinceLastPoll % cstMicroSecondsPerSecond;
         snprintf(buf, sizeof(buf) - 1, "%" "lld" ".%06" "lld" "", seconds, microseconds);
         return buf;
+    }
+    Timestamp Timestamp::getNow()
+    {
+        timeval tv;
+        gettimeofday(&tv,NULL);
+        int64_t seconds=tv.tv_sec;
+        return Timestamp(seconds*cstMicroSecondsPerSecond+tv.tv_usec);
     }
 }

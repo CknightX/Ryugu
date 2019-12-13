@@ -1,5 +1,6 @@
 CC = g++ -std=c++11 -g
-OBJ = echo.o channel.o eventhandler.o poller.o conn.o utils.o tcpserver.o net.o buffer.o
+OBJ = echo.o channel.o eventhandler.o poller.o conn.o utils.o tcpserver.o net.o buffer.o\
+TimerQueue.o Timestamp.o Timer.o
 
 
 all : $(OBJ)
@@ -34,6 +35,13 @@ tcpserver.o : tcpserver.cpp
 
 net.o : net.cpp
 	$(CC) $< -c -o $@
+Timer.o : Timer.cpp
+	$(CC) $< -c -o $@
+Timestamp.o : Timestamp.cpp
+	$(CC) $< -c -o $@
+TimerQueue.o : TimerQueue.cpp
+	$(CC) $< -c -o $@
+
 
 
 

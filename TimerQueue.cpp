@@ -69,7 +69,7 @@ namespace ck
         // 是第一个插入的，或者时间间隔是最小的，此时需要重置timerfd
         if (earliestChanged)
         {
-            resetTimerfd(timerfd,timer->getExpiration);
+            resetTimerfd(timerfd,timer->getExpiration());
         }
     }
 
@@ -176,10 +176,14 @@ namespace ck
             earliestChanged=true;
         }
 
+        {
         auto result=timers.insert(Entry(when,timer));
         assert(result.second);
-        result=activeTimers.insert(ActiveTimer(timer,timer->getSequence()));
+        }
+        {
+        auto result=activeTimers.insert(ActiveTimer(timer,timer->getSequence()));
         assert(result.second);
+        }
         return earliestChanged;
 
     }
