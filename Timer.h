@@ -2,6 +2,7 @@
 #include "utils.h"
 #include "Timestamp.h"
 #include <functional>
+#include <atomic>
 
 namespace ck
 {
@@ -12,7 +13,7 @@ namespace ck
         public:
         Timer(TimerCallback cb,Timestamp when,double _interval)
         :callback(std::move(cb)), expiration(when),interval(_interval),
-        repeat(_interval> 0.0), sequence(0)
+        repeat(_interval> 0.0),sequence(seqCreated++)
         {
 
         }
@@ -21,7 +22,6 @@ namespace ck
         {
             callback();
         }
-
         Timestamp getExpiration() const {return expiration;}
         int64_t getSequence() const {return sequence;}
         bool isRepeat() const {return repeat;}
@@ -35,6 +35,8 @@ namespace ck
         const TimerCallback callback;
         // 终止时间
         Timestamp expiration;
+ 
+        static std::atomic<int64_t> seqCreated;
 
         // 重复性定时器的时间间隔
         const double interval;

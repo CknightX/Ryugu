@@ -13,4 +13,5 @@ namespace ck
             expiration=Timestamp::invalid();
         }
     }
+    std::atomic<int64_t> Timer::seqCreated(0);
 }

@@ -26,6 +26,7 @@ void test1()
 void test2()
 {
 	EventHandler handler;
-	handler.runEvery(3,[]{std::cout<<"hello"<<std::endl;});
+	handler.runEvery(1,[]{std::cout<<"hello"<<std::endl;});
+	handler.runEvery(1,[]{std::cout<<"world"<<std::endl;});
 	handler.loop();
 }
