@@ -18,6 +18,7 @@ namespace ck
             LOG_ERROR("readTimerfd error");
         }
     }
+    // 从now到when的时间
     timespec timeFromNow(Timestamp when)
     {
         int64_t microseconds=when.getTimestampByMicroSeconds()-Timestamp::getNow().getTimestampByMicroSeconds();
@@ -97,38 +98,51 @@ namespace ck
 
         std::vector<Entry> expired = getExpired(now);
 
+        // 正在执行到期的定时器（多线程）
         callingExpiredTimers=true;
+
         cancelingTimers.clear();
 
+        // 执行所有到期定时器任务
         for (const Entry& it:expired)
         {
             it.second->run();
         }
+        // 执行完毕
         callingExpiredTimers=false;
 
+        // 重置（循环定时器）
         reset(expired,now);
     }
-    // 获取到期的timer
+    // 获取now为止到期的timer
     std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
     {
         assert(timers.size()==activeTimers.size());
 
         std::vector<Entry> expired;
         Entry sentry(now,reinterpret_cast<Timer*>(UINTPTR_MAX));
+        // 二分查找第一个>=now的定时器
         auto end=timers.lower_bound(sentry);
-        assert(end==timers.end()|| now < end->first);
-        std::copy(timers.begin(),end,std::back_inserter(expired));
-        timers.erase(timers.begin(),end);
+        // now最大 || now小于找到的定时器
+        assert(end==timers.end()|| now <= end->first);
 
+        // 所有小于now的（到期）定时器
+        std::copy(timers.begin(),end,std::back_inserter(expired));
+
+        timers.erase(timers.begin(),end);
+        // 删除所有到期定时器
         for (const Entry& it:expired)
         {
             ActiveTimer timer(it.second,it.second->getSequence());
             size_t n=activeTimers.erase(timer);
         }
+
         assert(timers.size()==activeTimers.size());
+
         return expired;
 
     }
+
     void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
     {
         Timestamp nextExpire;
@@ -141,6 +155,7 @@ namespace ck
             {
                 // 重启定时器
                 it.second->restart(now);
+                // 插入定时器队列
                 insert(it.second);
             }
             else
@@ -148,9 +163,10 @@ namespace ck
                 delete it.second;
             }
         }
+
         if (!timers.empty())
         {
-            // 新的timerfd触发时间是所有计时器中最近的时间
+            // 新的timerfd触发时间是所有计时器中离现在最近的时间
             nextExpire=timers.begin()->second->getExpiration();
             if (nextExpire.isValid())
             {
@@ -188,4 +204,14 @@ namespace ck
 
     }
 
-}
+    int TimerQueue::createTimerfd()
+    {
+        int timerfd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
+        if (timerfd < 0)
+        {
+            LOG_ERROR("Failed to create timerfd");
+        }
+        return timerfd;
+    }
+
+    } // namespace ck

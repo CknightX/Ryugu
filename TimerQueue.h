@@ -31,7 +31,7 @@ class TimerQueue : noncopyable
 
     void addTimerInLoop(Timer* timer);
     void cancelInLoop(TimerId timerId);
-    // timerfd可读时的回调函数
+    // timerfd可读时的回调函数, 检测所有到期Timer
     void handleRead();
     
     std::vector<Entry> getExpired(Timestamp now);
@@ -40,6 +40,9 @@ class TimerQueue : noncopyable
     bool insert(Timer* timer);
 
     void resetTimerfd(int timerfd,Timestamp expiration);
+
+
+    static int createTimerfd();
 
     EventHandler* handler;
     const int timerfd;

@@ -1,5 +1,5 @@
 #include "channel.h"
-#include "eventhandler.h"
+#include "EventHandler.h"
 #include "debug.h"
 #include "net.h"
 #include <atomic>

@@ -28,7 +28,6 @@ namespace ck
     std::string strErrno(int _errno);
 
 
-    int createTimerfd();
     
 
 }

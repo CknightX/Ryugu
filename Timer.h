@@ -1,12 +1,12 @@
 #pragma once
 #include "utils.h"
 #include "Timestamp.h"
+#include "Callbacks.h"
 #include <functional>
 #include <atomic>
 
 namespace ck
 {
-    using TimerCallback=std::function<void()>;
 
     class Timer : noncopyable
     {

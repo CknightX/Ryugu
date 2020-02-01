@@ -4,13 +4,14 @@
 namespace ck
 {
     TcpConn::TcpConn()
-        :channel(nullptr),handler(nullptr),readcb(nullptr),writecb(nullptr),state(State::Invalid)
+        :channel(nullptr),handler(nullptr),readCb(nullptr),writeCb(nullptr),state(State::Invalid)
     {
 
     }
     // 作为服务端，创建TcpConn发生在accept之后，握手阶段已经结束
     void TcpConn::attach(EventHandler* _handler, int fd, net::Ipv4Addr _local, net::Ipv4Addr _peer)
     {
+        setState(Connected);
         LOG("attch fd=%d",fd);
 
         handler=_handler;
@@ -29,8 +30,17 @@ namespace ck
             TcpConnPtr con=shared_from_this();
             channel->setReadCB([=]{con->handleRead(con);});
             channel->setWriteCB([=]{con->handleWrite(con);});
+            // 连接回调函数
+            if (connCb)
+            {
+                connCb(con);
+            }
 
         }
+    }
+    void TcpConn::setState(State _state)
+    {
+        state=_state;
     }
 
     // 暂时先不管TCP状态..
@@ -38,9 +48,9 @@ namespace ck
     {
         // 将数据读到readBuf中
         fillReadBuf();
-        if (readcb)
+        if (readCb)
         {
-            readcb(conn);
+            readCb(conn);
         }
 
     }
@@ -53,8 +63,8 @@ namespace ck
         if (writeBuf.empty())
         {
             // 用户自定义回调
-            if (writecb)
-                writecb(conn);
+            if (writeCb)
+                writeCb(conn);
             // 关闭可写事件监听
             if (channel->isWriteEnabled())
                 channel->enableWrite(false);
@@ -148,8 +158,12 @@ namespace ck
     }
     void TcpConn::close()
     {
-        readcb=writecb=nullptr;
+        readCb=writeCb=nullptr;
         delete channel;
         channel=nullptr;
+    }
+    TcpConn::~TcpConn()
+    {
+        close();
     }
 } // namespace ck

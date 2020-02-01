@@ -1,6 +1,6 @@
 /**
  * TcpConnection
- * 对每一个Tcp连接进行抽象
+ * Tcp连接
  */
 
 #pragma once
@@ -10,6 +10,7 @@
 #include "utils.h"
 #include "net.h"
 #include "buffer.h"
+#include "Callbacks.h"
 
 
 
@@ -19,8 +20,6 @@ class EventHandler;
 class Channel;
 class TcpConn;
 
-using TcpConnPtr = std::shared_ptr<TcpConn>;
-using TcpCallBack = std::function<void(const TcpConnPtr &)>;
 
 class TcpConn : public std::enable_shared_from_this<TcpConn>, noncopyable
 {
@@ -40,22 +39,25 @@ public:
     State state;
     net::Ipv4Addr local,peer;
     // 使用者定义的回调函数
-    TcpCallBack readcb, writecb;
+    TcpCallBack readCb, writeCb, connCb;
 
     Buffer readBuf,writeBuf;
 
 public:
     TcpConn();
-    virtual ~TcpConn(){}
+    virtual ~TcpConn();
     // 可读可写时的回调函数
     // 用户设置的行为只是其中一部分，其中将数据读取到缓冲区的行为由库自动完成
     // 写也是同理
     void handleRead(const TcpConnPtr &conn);
     void handleWrite(const TcpConnPtr &conn);
 
+    void setState(State _state);
+
     // 设置读写回调函数
-    void setReadCB(const TcpCallBack &cb){readcb=cb;}
-    void setWriteCB(const TcpCallBack &cb){writecb=cb;}
+    void setReadCb(const TcpCallBack &cb){readCb=cb;}
+    void setWriteCb(const TcpCallBack &cb){writeCb=cb;}
+    void setConnCb(const TcpCallBack &cb){connCb=cb;}
 
     // 发起连接(作为客户端时)
     void connect(EventHandler* _handler, const std::string &host, unsigned short port, int timeout, const std::string &localip);

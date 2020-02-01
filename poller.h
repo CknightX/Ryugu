@@ -11,6 +11,7 @@ Poller
 #include <set>
 #include <atomic>
 #include "netheaders.h"
+#include <stdint.h>
 
 
 
@@ -29,10 +30,8 @@ namespace ck
 			int64_t id;
 			int lastActive;
 			Poller()
-				:lastActive(-1)
+				:lastActive(-1),id(_id++)
 			{
-				static std::atomic<int64_t> _id(0);
-				id=++_id;
 			}
 
 			virtual void addChannel(Channel* event)=0;
@@ -43,6 +42,10 @@ namespace ck
 
 
 			virtual ~Poller(){}
+
+		private:
+			static std::atomic<int64_t> _id;
+
 
 	};
 

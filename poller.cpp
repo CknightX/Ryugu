@@ -106,4 +106,6 @@ Epoll::Epoll()
 			}
 		}
 	}
+
+	std::atomic<int64_t> Poller::_id(0);
 	} // namespace ck

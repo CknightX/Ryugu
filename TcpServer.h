@@ -32,7 +32,8 @@ namespace ck
         int bind(const std::string& host,unsigned short port,bool reusePort=false);
         static TcpServerPtr startServer(EventHandler* _handler,const std::string& host,unsigned short port,bool reusePort=false);
 
-        void setConnRead(const TcpCallBack& cb){readcb=cb;}
+        void setReadCb(const TcpCallBack& cb){readCb=cb;}
+        void setConnCb(const TcpCallBack& cb){connCb=cb;}
 
 
 
@@ -42,8 +43,10 @@ namespace ck
         net::Ipv4Addr addr;
         Channel* listenChannel;
 
-        // 使用者设定的可读回调函数
-        TcpCallBack readcb;
+        // 连接建立
+        TcpCallBack connCb;
+        // 可读
+        TcpCallBack readCb;
 
         std::function<TcpConnPtr()> createCB;
 

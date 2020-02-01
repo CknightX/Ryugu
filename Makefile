@@ -1,24 +1,20 @@
-CC = g++ -std=c++11 -g
-OBJ = echo.o channel.o eventhandler.o poller.o conn.o utils.o tcpserver.o net.o buffer.o\
-TimerQueue.o Timestamp.o Timer.o
+CC = g++ -std=c++11 -g -pthread
+OBJ = channel.o EventHandler.o poller.o conn.o utils.o TcpServer.o net.o buffer.o\
+TimerQueue.o Timestamp.o Timer.o EventHandlerThread.o 
 
-
-all : $(OBJ)
-	$(CC) $(OBJ) -o echo 
-
-test : test.cpp buffer.o
-	$(CC) $< buffer.o -o $@
+all : $(OBJ) test.o 
+	$(CC) $(OBJ) test.o -o test
 
 buffer.o : buffer.cpp
 	$(CC) $< -c -o $@
 
-echo.o : echo.cpp
+test.o : test.cpp
 	$(CC) $< -c -o $@
 
 channel.o : channel.cpp
 	$(CC) $< -c -o $@
 
-eventhandler.o : eventhandler.cpp
+EventHandler.o : EventHandler.cpp
 	$(CC) $< -c -o $@
 
 poller.o : poller.cpp
@@ -30,7 +26,7 @@ conn.o : conn.cpp
 utils.o : utils.cpp
 	$(CC) $< -c -o $@
 
-tcpserver.o : tcpserver.cpp
+TcpServer.o : TcpServer.cpp
 	$(CC) $< -c -o $@
 
 net.o : net.cpp
@@ -42,12 +38,15 @@ Timestamp.o : Timestamp.cpp
 TimerQueue.o : TimerQueue.cpp
 	$(CC) $< -c -o $@
 
+EventHandlerThread.o : EventHandlerThread.cpp
+	$(CC) $< -c -o $@
+
 
 
 
 clean:
 	rm -f *.o
-	rm -f test echo
+	rm -f test
 
 run :
 	./test

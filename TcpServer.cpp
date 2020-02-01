@@ -1,5 +1,5 @@
-#include "tcpserver.h"
-#include "eventhandler.h"
+#include "TcpServer.h"
+#include "EventHandler.h"
 #include "debug.h"
 #include "channel.h"
 #include <cstring>
@@ -72,13 +72,19 @@ void TcpServer::handleAccept()
             // 有新的客户端连接
                 TcpConnPtr con(new TcpConn);
 
+                if (connCb)
+                {
+                    LOG("ss");
+                    con->setConnCb(connCb);
+                }
+
                 // 将fd与TcpConnection关联起来
                 con->attach(handler, cfd, local, peer);
 
                 // readcb
-                if (readcb)
+                if (readCb)
                 {
-                    con->setReadCB(readcb);
+                    con->setReadCb(readCb);
                 }
 
 

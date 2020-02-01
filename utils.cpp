@@ -15,14 +15,4 @@ namespace ck
         return "";
     }
 
-    int createTimerfd()
-    {
-        int timerfd=::timerfd_create(CLOCK_MONOTONIC,TFD_NONBLOCK|TFD_CLOEXEC);
-        if (timerfd<0)
-        {
-            LOG_ERROR("Failed to create timerfd");
-        }
-        return timerfd;
-    }
-
 }
