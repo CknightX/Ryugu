@@ -27,6 +27,7 @@ namespace ck
     void EventHandlerThread::threadFunc()
     {
         EventHandler localHandler;
+
         {
             std::lock_guard<std::mutex> mux(mutex);
             handler=&localHandler;

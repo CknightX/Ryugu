@@ -13,14 +13,13 @@ class EventHandlerThread;
 class EventHandlerThreadPool : noncopyable
 {
     public:
-    EventHandlerThreadPool(EventHandler* _handler,const std::string& _name);
+    EventHandlerThreadPool(EventHandler* _baseHandler,const std::string& _name);
     ~EventHandlerThreadPool();
     void setThreadNum(int nums){numThreads=nums;}
-    void start(const ThreadInitCallback& cb=ThreadInitCallback());
+    void start();
 
-    EventHandler* getOneHandler()const;
-
-    std::vector<EventHandler*> getAllHandler()const;
+    EventHandler* getOneHandler();
+    std::vector<EventHandler*> getAllHandler();
 
     bool isStarted() const {return started;}
     const std::string& getName() const {return name;}
@@ -30,8 +29,9 @@ class EventHandlerThreadPool : noncopyable
     std::string name;
     bool started;
     int numThreads;
+    // 下一次选择的handler序号
     int next;
     std::vector<std::unique_ptr<EventHandlerThread>> threads;
-    std::vector<EventHandler*> loops;
+    std::vector<EventHandler*> handlers;
 };
 }
