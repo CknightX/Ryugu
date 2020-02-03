@@ -12,9 +12,12 @@ void test2();
 // Thread test
 void test3();
 
+// echo
+void test4();
+
 int main()
 {
-	test3();
+	test4();
 	return 0;
 }
 
@@ -44,4 +47,14 @@ void test3()
 	EventHandlerThread thread("hehe");
 	thread.start();
 	while(1);
+}
+void test4()
+{
+	EventHandler handler;
+	TcpServerPtr server = TcpServer::startServer(&handler, "", 8080);
+	server->setReadCb([](const TcpConnPtr &conn) {
+		conn->send(conn->getInput());
+	});
+
+	handler.loop();
 }

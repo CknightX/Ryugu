@@ -13,4 +13,6 @@ namespace ck
     using TimerCallback=std::function<void()>;
 
     using ThreadInitCallback=std::function<void(EventHandler*)>;
+
+    using Functor=std::function<void()>;
 }

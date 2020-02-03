@@ -17,7 +17,11 @@ Channel::Channel(EventHandler* _eh,int _fd, uint32_t _events)
     static std::atomic<int64_t> _id(0);
     id=++_id;
 
-    poller->addChannel(this);
+    // poller->addChannel(this);
+    eh->runInLoop([this]{this->poller->addChannel(this);});
+
+
+
     LOG("new Channel,fd=%d",_fd);
 }
 

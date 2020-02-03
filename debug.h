@@ -13,6 +13,8 @@
 #define LOG(msg,args...) _LOG("LOG",msg,##args)
 #define LOG_ERROR(msg,args...) _LOG("ERROR",msg,##args)
 
+#define MARK _LOG("----------MARK","");
+
 
 #define private public
 #define protected public

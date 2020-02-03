@@ -21,7 +21,7 @@ namespace ck
             _handler=handler;
 
         }
-
+        LOG("create one thread.");
         return _handler;
     }
     void EventHandlerThread::threadFunc()
@@ -34,6 +34,7 @@ namespace ck
             condition.notify_one();
         }
 
+        MARK
         localHandler.loop();
 
         // ???

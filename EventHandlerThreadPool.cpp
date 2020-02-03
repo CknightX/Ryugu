@@ -18,7 +18,7 @@ namespace ck
 
     void EventHandlerThreadPool::start()
     {
-        if (!started)
+        if (started)
             return;
 
         started=true;

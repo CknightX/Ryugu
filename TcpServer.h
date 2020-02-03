@@ -19,6 +19,7 @@ namespace ck
     class EventHandlers;
     class Channel;
     class TcpServer;
+    class EventHandlerThreadPool;
 
     using TcpServerPtr=std::shared_ptr<TcpServer>;
     class TcpServer : noncopyable
@@ -32,6 +33,9 @@ namespace ck
         int bind(const std::string& host,unsigned short port,bool reusePort=false);
         static TcpServerPtr startServer(EventHandler* _handler,const std::string& host,unsigned short port,bool reusePort=false);
 
+        //
+        void setThreadNum(int num);
+
         void setReadCb(const TcpCallBack& cb){readCb=cb;}
         void setConnCb(const TcpCallBack& cb){connCb=cb;}
 
@@ -39,10 +43,12 @@ namespace ck
 
         private:
         EventHandler* handler;
+        std::shared_ptr<EventHandlerThreadPool> threadPool;
 
         net::Ipv4Addr addr;
         Channel* listenChannel;
 
+        // 回调函数
         // 连接建立
         TcpCallBack connCb;
         // 可读
