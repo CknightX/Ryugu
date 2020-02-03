@@ -65,9 +65,10 @@ void Channel::close()
     LOG("close channel fd %d",fd);
     poller->removeChannel(this);
     ::close(fd);
-    fd=-1;
+    fd=-2;
     // ?
     //handleRead();
+    MARK
 }
 
 }

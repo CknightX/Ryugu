@@ -42,7 +42,7 @@ TcpServerPtr TcpServer::startServer(EventHandler *_handler, const std::string &h
     {
         LOG_ERROR("bind");
     }
-    p->setThreadNum(5);
+    p->setThreadNum(0);
     p->threadPool->start();
 
     return r == 0 ? p : nullptr;

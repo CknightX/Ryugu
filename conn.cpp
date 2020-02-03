@@ -147,6 +147,7 @@ namespace ck
             else if (n == 0)
             {
                 // 关闭tcp连接，释放channel
+                LOG("lost");
                 close();
                 break;
             }
@@ -164,6 +165,6 @@ namespace ck
     }
     TcpConn::~TcpConn()
     {
-        close();
+        LOG("TcpConnection desconstruction.");
     }
 } // namespace ck

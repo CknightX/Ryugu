@@ -34,7 +34,6 @@ namespace ck
             condition.notify_one();
         }
 
-        MARK
         localHandler.loop();
 
         // ???
