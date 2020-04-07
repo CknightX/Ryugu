@@ -1,7 +1,7 @@
-#include "channel.h"
+#include "Channel.h"
 #include "EventHandler.h"
-#include "debug.h"
-#include "net.h"
+#include "Debug.h"
+#include "Net.h"
 #include <atomic>
 namespace ck
 {
@@ -14,18 +14,15 @@ Channel::Channel(EventHandler* _eh,int _fd, uint32_t _events)
         LOG_ERROR("setNonBlocking failed.");
     }
 
+    // ID++
     static std::atomic<int64_t> _id(0);
     id=++_id;
 
     // poller->addChannel(this);
     eh->runInLoop([this]{this->poller->addChannel(this);});
 
-
-
     LOG("new Channel,fd=%d",_fd);
 }
-
-
 
 void Channel::enableRead(bool enable)
 {
@@ -59,7 +56,6 @@ void Channel::enableReadWrite(bool readable,bool writeable)
     enableWrite(writeable);
 }
 
-
 void Channel::close()
 {
     LOG("close channel fd %d",fd);
@@ -68,7 +64,6 @@ void Channel::close()
     fd=-2;
     // ?
     //handleRead();
-    MARK
 }
 
 }

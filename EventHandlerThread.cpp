@@ -28,6 +28,7 @@ namespace ck
     {
         EventHandler localHandler;
 
+        // 局部作用域，为了尽快释放lock_guard
         {
             std::lock_guard<std::mutex> mux(mutex);
             handler=&localHandler;
@@ -39,8 +40,6 @@ namespace ck
         // ???
         std::lock_guard<std::mutex> mux(mutex);
         handler=nullptr;
-
-
 
     }
 

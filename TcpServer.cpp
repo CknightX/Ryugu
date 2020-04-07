@@ -1,7 +1,7 @@
 #include "TcpServer.h"
 #include "EventHandler.h"
-#include "debug.h"
-#include "channel.h"
+#include "Debug.h"
+#include "Channel.h"
 #include "EventHandlerThreadPool.h"
 #include <cstring>
 namespace ck
@@ -42,16 +42,17 @@ TcpServerPtr TcpServer::startServer(EventHandler *_handler, const std::string &h
     {
         LOG_ERROR("bind");
     }
-    p->setThreadNum(0);
+    p->setThreadNum(10);
     p->threadPool->start();
 
     return r == 0 ? p : nullptr;
 }
 
+// client端connect
 void TcpServer::handleAccept()
 {
     EventHandler *subHandler = threadPool->getOneHandler();
-    std::cout<<"use thread handler:"<<subHandler->threadId<<std::endl;
+    //std::cout<<"use thread handler:"<<subHandler->threadId<<std::endl;
     LOG("handleAccept");
     sockaddr_in cliaddr;
     socklen_t cliaddrLen = sizeof(cliaddr);
@@ -59,7 +60,6 @@ void TcpServer::handleAccept()
     int cfd;
     if (lfd > 0)
     {
-        // 之前阻塞在这里
         while ((cfd = accept(lfd, (sockaddr *)&cliaddr, &cliaddrLen)) >= 0)
         {
             sockaddr_in peer, local;
@@ -76,15 +76,14 @@ void TcpServer::handleAccept()
                 LOG_ERROR("getsockname failed");
             }
 
-            // 有新的客户端连接
+            // 创建一个Connection
             TcpConnPtr con(new TcpConn);
-
+            // 连接时的回调函数
             if (connCb)
             {
                 con->setConnCb(connCb);
             }
-
-            // 将fd与TcpConnection关联起来
+            // 将fd与TcpConnection关联起来,创建Channel
             con->attach(subHandler, cfd, local, peer);
 
             // readcb

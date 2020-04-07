@@ -1,5 +1,5 @@
-#include "Ryugu.h"
-#include "debug.h"
+#include "RyuguNet.h"
+#include "Debug.h"
 #include "EventHandlerThread.h"
 #include<iostream>
 
@@ -21,6 +21,7 @@ int main()
 	return 0;
 }
 
+// 定时器测试
 void test1()
 {
 	EventHandler handler;
@@ -48,9 +49,11 @@ void test3()
 	thread.start();
 	while(1);
 }
+// 
 void test4()
 {
 	EventHandler handler;
+	// ten threads..
 	TcpServerPtr server = TcpServer::startServer(&handler, "", 8080);
 	server->setReadCb([](const TcpConnPtr &conn) {
 		conn->send(conn->getInput());

@@ -1,6 +1,6 @@
-#include "conn.h"
-#include "channel.h"
-#include "debug.h"
+#include "TcpConn.h"
+#include "Channel.h"
+#include "Debug.h"
 namespace ck
 {
     TcpConn::TcpConn()

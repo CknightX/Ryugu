@@ -1,17 +1,15 @@
 #pragma once
 #include "Callbacks.h"
-#include "conn.h"
+#include "TcpConn.h"
 
 namespace ck
 {
     class EventHandler;
-
     class TcpClient
     {
         public:
         // 发起连接
         void connect();
-        
 
         // 断开连接
         void disconnect();

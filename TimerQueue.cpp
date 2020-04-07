@@ -4,7 +4,7 @@
 #include <iterator>
 #include "TimerQueue.h"
 #include <cassert>
-#include "debug.h"
+#include "Debug.h"
 
 namespace ck
 {

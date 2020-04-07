@@ -7,9 +7,9 @@ TcpServer
 
 #pragma once
 
-#include "utils.h"
-#include "conn.h"
-#include "net.h"
+#include "Utils.h"
+#include "TcpConn.h"
+#include "Net.h"
 #include <memory>
 
 
@@ -33,7 +33,6 @@ namespace ck
         int bind(const std::string& host,unsigned short port,bool reusePort=false);
         static TcpServerPtr startServer(EventHandler* _handler,const std::string& host,unsigned short port,bool reusePort=false);
 
-        //
         void setThreadNum(int num);
 
         void setReadCb(const TcpCallBack& cb){readCb=cb;}

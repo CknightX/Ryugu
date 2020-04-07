@@ -3,10 +3,10 @@
 #include <set>
 #include <utility>
 #include <vector>
-#include "utils.h"
+#include "Utils.h"
 #include "TimerId.h"
 #include "Timer.h"
-#include "channel.h"
+#include "Channel.h"
 
 
 namespace ck

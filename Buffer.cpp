@@ -1,5 +1,5 @@
-#include "buffer.h"
-#include "debug.h"
+#include "Buffer.h"
+#include "Debug.h"
 #include<unistd.h>
 #include<iostream>
 #include <algorithm>

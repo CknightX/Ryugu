@@ -5,8 +5,8 @@ EventHandler
 #include <memory>
 #include <thread>
 #include <mutex>
-#include "poller.h"
-#include "debug.h"
+#include "Poller.h"
+#include "Debug.h"
 #include "TimerId.h"
 #include "Timestamp.h"
 #include "TimerQueue.h"

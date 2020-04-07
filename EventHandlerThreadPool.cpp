@@ -1,5 +1,6 @@
 #include "EventHandlerThreadPool.h"
 #include "EventHandlerThread.h"
+#include "Debug.h"
 namespace ck
 {
     EventHandlerThreadPool::EventHandlerThreadPool(EventHandler* _baseHandler,const std::string& _name)
@@ -25,6 +26,7 @@ namespace ck
 
         for(int i=0;i<numThreads;++i)
         {
+            LOG("The number of threads:%d",numThreads);
             std::string tname=name+std::to_string(i);
             EventHandlerThread* t=new EventHandlerThread(tname);
             threads.push_back(std::unique_ptr<EventHandlerThread>(t));

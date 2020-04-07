@@ -1,6 +1,6 @@
-#include "poller.h"
-#include "debug.h"
-#include "channel.h"
+#include "Poller.h"
+#include "Debug.h"
+#include "Channel.h"
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -9,6 +9,7 @@ namespace ck
 {
 
 Epoll *globalEpoll;
+
 Epoll::Epoll()
 {
 	globalEpoll = this;

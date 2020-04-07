@@ -7,9 +7,9 @@
 #include <memory>
 #include <string>
 #include <cstring>
-#include "utils.h"
-#include "net.h"
-#include "buffer.h"
+#include "Utils.h"
+#include "Net.h"
+#include "Buffer.h"
 #include "Callbacks.h"
 
 
@@ -28,7 +28,7 @@ public:
     enum State
     {
         Invalid = 1,
-        Handshaking,  //握手阶段
+        Handshaking,  //握手
         Connected,    // 连接
         Closed,
         Failed,
@@ -95,6 +95,7 @@ public:
         return conn;
     }
     private:
+
     // 尝试尽可能发送，返回最终发送的字节数
     size_t _write(const char* buf,size_t len);
     // 尽可能从读取到readBuf中
