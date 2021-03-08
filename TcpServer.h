@@ -7,11 +7,12 @@ TcpServer
 
 #pragma once
 
+#include <vector>
+#include <memory>
 #include "Callbacks.h"
 #include "Utils.h"
 #include "TcpConn.h"
 #include "Net.h"
-#include <memory>
 namespace ck
 {
     class EventLoop;
@@ -40,6 +41,8 @@ namespace ck
 
         private:
         EventLoop* loop;
+        std::vector<TcpConnPtr> conns;
+
         std::unique_ptr<Channel> listenChannel;
         std::shared_ptr<EventLoopThreadPool> threadPool;
 
@@ -50,7 +53,7 @@ namespace ck
         // 连接建立
         OnConnCallback connCb;
         // 可读
-        TcpCallBack readCb;
+        MessageCallback readCb;
 
         private:
         void handleAccept();

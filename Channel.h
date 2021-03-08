@@ -6,6 +6,7 @@ Channel
 #pragma once
 #include <stdint.h>
 #include <functional>
+#include <memory>
 #include "Netheaders.h"
 
 namespace ck 
@@ -25,7 +26,7 @@ namespace ck
 	class Channel 
 	{
 		public:
-			Channel(EventLoop* _loop, int _fd, uint32_t _events);
+			Channel(EventLoop* _loop, int _fd);
 			~Channel(){close();}
 
 		public:
@@ -58,7 +59,13 @@ namespace ck
 
 			void handleRead(){readCallback();}
 			void handleWrite(){writeCallback();}
+
+            void tie(const std::shared_ptr<void>& obj);
         private:
+            // for TcpConn
+            std::weak_ptr<void> tie_;
+            bool tied_;
+
 			EventLoop* loop;
 			Poller* poller;
 			int fd;

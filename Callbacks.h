@@ -20,5 +20,8 @@ namespace ck
     using OnConnCallback=std::function<void(const TcpConnPtr&)>;
     using MessageCallback=std::function<void(const TcpConnPtr&)>;
 
+    //for TcpConn
+
+
 
 }

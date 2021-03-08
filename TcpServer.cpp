@@ -8,9 +8,9 @@
 namespace ck
 {
 
-    TcpServer::TcpServer(EventLoop *_loop,const net::Ipv4Addr& listenAddr, bool reusePort)
+    TcpServer::TcpServer(EventLoop *_loop,const net::Ipv4Addr& _listenAddr, bool reusePort)
         :loop(_loop),
-        listenAddr(listenAddr),
+        listenAddr(_listenAddr),
         reusePort(reusePort),
         listenChannel(nullptr),
         threadPool(new EventLoopThreadPool(loop, "test"))
@@ -20,31 +20,35 @@ namespace ck
     void TcpServer::start()
     {
         int r=goListening();
-        if (r)
-        {
-            LOG_ERROR("bind");
-        }
-        setThreadNum(10);
+        setThreadNum(1);
         threadPool->start();
     }
 
     int TcpServer::goListening()
     {
         int fd = socket(AF_INET, SOCK_STREAM, 0);
+        int one=1;
+        if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one)) < 0)
+        {
+            close(fd);
+            return -1;
+        }
+
         int r = ::bind(fd, (sockaddr *)&listenAddr.getAddr(), sizeof(sockaddr));
         if (r)
         {
             ::close(fd);
             LOG_ERROR("bind");
+            LOG("errno:%d",errno);
             return errno;
         }
         r = listen(fd, 20);
 
-        listenChannel.reset(new Channel(loop, fd, cstReadEvent));
+        listenChannel.reset(new Channel(loop, fd));
+        LOG("listenChannel created.");
         listenChannel->setReadCB([this] { handleAccept(); });
         return r;
-    }
-
+    } 
     // client端connect
     void TcpServer::handleAccept()
     {
@@ -72,21 +76,19 @@ namespace ck
                 {
                     LOG_ERROR("getsockname failed");
                 }
-                // 创建一个Connection
-                TcpConnPtr con(new TcpConn);
-                // 连接时的回调函数
-                if (connCb)
-                {
-                    con->setConnCb(connCb);
-                }
-                // 将fd与TcpConnection关联起来,创建Channel
-                con->attach(subLoop, cfd, local, peer);
+                // 构造TcpConn
+                TcpConnPtr conn(new TcpConn(subLoop,cfd,local,peer));
+                // 回调
+                conn->setConnCb(connCb);
+                conn->setReadCb(readCb);
 
-                // readcb
-                if (readCb)
-                {
-                    con->setReadCb(readCb);
-                }
+                // IO线程调用establish->channel纳入poller中开始事件循环
+                subLoop->runInLoop([conn]{
+                    conn->connectEstablished();
+                });
+
+                // 加入连接池
+                conns.emplace_back(conn);
             }
         }
     }

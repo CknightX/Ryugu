@@ -37,7 +37,7 @@ namespace ck
     TimerQueue::TimerQueue(EventLoop* _loop)
     : loop(_loop),
     timerfd(createTimerfd()),
-    timerfdChannel(_loop,timerfd,cstReadEvent),
+    timerfdChannel(_loop,timerfd),
     timers(),
     callingExpiredTimers(false)
     {

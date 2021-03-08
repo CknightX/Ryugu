@@ -20,9 +20,10 @@ namespace ck
         poller(PollerFactory::getPoller()),
         timerQueue(new TimerQueue(this)),
         wakeupfd(createEventfd()),
-        wakeupChannel(new Channel(this,wakeupfd,cstReadEvent)),
+        wakeupChannel(new Channel(this,wakeupfd)),
         threadId(std::this_thread::get_id())
     {
+        wakeupChannel->enableRead(true);
         wakeupChannel->setReadCB(std::bind(&EventLoop::handleEventfdRead,this));
     }
     EventLoop::~EventLoop()

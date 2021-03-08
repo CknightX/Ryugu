@@ -5,21 +5,16 @@
 #include <atomic>
 namespace ck
 {
-    Channel::Channel(EventLoop* _loop,int _fd, uint32_t _events)
-        :loop(_loop),fd(_fd),events(_events)
+    Channel::Channel(EventLoop* _loop,int _fd)
+        :loop(_loop),fd(_fd),events(cstReadEvent)
     {
+        static std::atomic<int64_t> _id(0);
+        id=++_id;
         // 设置为非阻塞套接字
         if (net::setNonBlocking(_fd)<0)
         {
             LOG_ERROR("setNonBlocking failed.");
         }
-
-        // ID++
-        static std::atomic<int64_t> _id(0);
-        id=++_id;
-
-        // poller->addChannel(this);
-        loop->runInLoop([this]{this->loop->updateChannel(this);});
 
         LOG("new Channel,fd=%d",_fd);
     }
@@ -34,6 +29,7 @@ namespace ck
         {
             events&=~cstReadEvent;
         }
+        update();
 
     }
 
@@ -47,7 +43,7 @@ namespace ck
         {
             events&=~cstWriteEvent;
         }
-
+        update();
     }
 
     void Channel::enableReadWrite(bool readable,bool writeable)
@@ -72,6 +68,11 @@ namespace ck
     void Channel::remove()
     {
         loop->removeChannel(this);
+    }
+    void Channel::tie(const std::shared_ptr<void>& obj)
+    {
+        tie_=obj;
+        tied_=true;
     }
 
 }

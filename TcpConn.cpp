@@ -3,49 +3,48 @@
 #include "Debug.h"
 namespace ck
 {
-    TcpConn::TcpConn()
-        :channel(nullptr),loop(nullptr),readCb(nullptr),writeCb(nullptr),state(State::Invalid)
+    TcpConn::TcpConn(EventLoop* loop, int sockfd, net::Ipv4Addr localAddr, net::Ipv4Addr peerAddr)
+        :loop_(loop),
+         state_(Invalid),
+         channel_(new Channel(loop,sockfd)),
+         localAddr_(localAddr),
+         peerAddr_(peerAddr)
     {
-
+        channel_->setReadCB([this]{this->handleRead();});
+        channel_->setWriteCB([this]{this->handleWrite();});
     }
-    // 作为服务端，创建TcpConn发生在accept之后，握手阶段已经结束
-    void TcpConn::attach(EventLoop* _loop, int fd, net::Ipv4Addr _local, net::Ipv4Addr _peer)
+    TcpConn::~TcpConn()
     {
-        setState(Connected);
-
-        loop=_loop;
-        local=_local;
-        peer=_peer;
-
-        // 创建客户channel
-        channel.reset(new Channel(loop,fd,cstReadEvent));
-
-        TcpConnPtr con=shared_from_this();
-        channel->setReadCB([=]{con->handleRead(con);});
-        channel->setWriteCB([=]{con->handleWrite(con);});
-        // 连接回调函数
-        if (connCb)
-        {
-            connCb(con);
-        }
+        LOG("TcpConnection desconstruction.");
     }
-    void TcpConn::setState(State _state)
+    void TcpConn::setState(State state)
     {
-        state=_state;
+        state_=state;
     }
 
     // 暂时先不管TCP状态..
-    void TcpConn::handleRead(const TcpConnPtr& conn)
+    void TcpConn::handleRead()
     {
         // 将数据读到readBuf中
         fillReadBuf();
         if (readCb)
         {
-            readCb(conn);
+            readCb(shared_from_this());
         }
 
     }
-    void TcpConn::handleWrite(const TcpConnPtr& conn)
+    void TcpConn::connectEstablished()
+    {
+        setState(Connecting);
+        channel_->tie(shared_from_this());
+        // 线程不安全
+        channel_->enableRead(true);
+   }
+    void TcpConn::connectDestroyed()
+    {
+
+    }
+    void TcpConn::handleWrite()
     {
         // 写writeBuf里面的内容
         ssize_t sended=_write(writeBuf.getData(),writeBuf.size());
@@ -55,10 +54,10 @@ namespace ck
         {
             // 用户自定义回调
             if (writeCb)
-                writeCb(conn);
+                writeCb(shared_from_this());
             // 关闭可写事件监听
-            if (channel->isWriteEnabled())
-                channel->enableWrite(false);
+            if (channel_->isWriteEnabled())
+                channel_->enableWrite(false);
         }
 
     }
@@ -73,7 +72,7 @@ namespace ck
             // 剩下内容放到writeBuf中
             writeBuf.writeIn(buf+sended,len-sended);
             // 由epoll进行剩下的工作
-            channel->enableWrite(true);
+            channel_->enableWrite(true);
         }
     }
     void TcpConn::send(const std::string& str)
@@ -90,7 +89,7 @@ namespace ck
         size_t sended=0;
         while(len>sended)
         {
-            ssize_t nbytes=::write(channel->getFd(),buf+sended,len-sended);
+            ssize_t nbytes=::write(channel_->getFd(),buf+sended,len-sended);
             if (nbytes>0)
             {
                 sended+=nbytes;
@@ -110,7 +109,7 @@ namespace ck
                 }
                 else
                 {
-                    LOG_ERROR("write error,fd=%d",channel->getFd());
+                    LOG_ERROR("write error,fd=%d",channel_->getFd());
                 }
 
             }
@@ -123,7 +122,7 @@ namespace ck
         int n;
         while (1)
         {
-            n = ::read(channel->getFd(), _buf, 256);
+            n = ::read(channel_->getFd(), _buf, 256);
             if (n < 0)
             {
                 // 被中断打断
@@ -150,10 +149,7 @@ namespace ck
     }
     void TcpConn::close()
     {
-        readCb=writeCb=nullptr;
+        // TODO
     }
-    TcpConn::~TcpConn()
-    {
-        LOG("TcpConnection desconstruction.");
-    }
+
 } // namespace ck
