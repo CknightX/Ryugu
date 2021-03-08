@@ -1,6 +1,7 @@
 #include "RyuguNet.h"
 #include "Debug.h"
 #include "EventLoopThread.h"
+#include "Net.h"
 #include<iostream>
 
 using namespace ck;
@@ -20,28 +21,29 @@ int main()
 	test4();
 	return 0;
 }
+/*
 
 // 定时器测试
 void test1()
 {
-	EventLoop handler;
-	TcpServerPtr server=TcpServer::startServer(&handler,"",8080);
-	server->setConnCb([&handler](const TcpConnPtr &conn) {
-		  handler.runEvery(3, [=]() {conn->send("123"); });
+	EventLoop loop;
+	TcpServerPtr server=TcpServer::startServer(&loop,"",8080);
+	server->setConnCb([&loop](const TcpConnPtr &conn) {
+		  loop.runEvery(3, [=]() {conn->send("123"); });
 		LOG("%d",conn->channel->getFd());
 	});
 	server->setReadCb([](const TcpConnPtr &conn) {
 		conn->send(conn->getInput());
 	});
 
-	handler.loop();
+	loop.loop();
 }
 void test2()
 {
-	EventLoop handler;
-	handler.runEvery(1,[]{std::cout<<"hello"<<std::endl;});
-	handler.runEvery(1,[]{std::cout<<"world"<<std::endl;});
-	handler.loop();
+	EventLoop loop;
+	loop.runEvery(1,[]{std::cout<<"hello"<<std::endl;});
+	loop.runEvery(1,[]{std::cout<<"world"<<std::endl;});
+	loop.loop();
 }
 void test3()
 {
@@ -49,15 +51,18 @@ void test3()
 	thread.start();
 	while(1);
 }
+*/
 // 
 void test4()
 {
-	EventLoop handler;
+	EventLoop loop;
 	// ten threads..
-	TcpServerPtr server = TcpServer::startServer(&handler, "", 8080);
-	server->setReadCb([](const TcpConnPtr &conn) {
+    net::Ipv4Addr listen_addr("",8080);
+    TcpServer server(&loop,listen_addr,false);
+    server.start();
+	server.setMessageCb([](const TcpConnPtr &conn) {
 		conn->send(conn->getInput());
 	});
 
-	handler.loop();
+	loop.loop();
 }

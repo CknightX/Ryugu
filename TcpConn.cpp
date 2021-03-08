@@ -12,30 +12,21 @@ namespace ck
     void TcpConn::attach(EventLoop* _loop, int fd, net::Ipv4Addr _local, net::Ipv4Addr _peer)
     {
         setState(Connected);
-        LOG("attch fd=%d",fd);
 
         loop=_loop;
         local=_local;
         peer=_peer;
 
-        if (channel)
-        {
-            delete channel;
-        }
-        else
-        {
-            // 创建客户channel
-            channel=new Channel(loop,fd,cstReadEvent);
+        // 创建客户channel
+        channel.reset(new Channel(loop,fd,cstReadEvent));
 
-            TcpConnPtr con=shared_from_this();
-            channel->setReadCB([=]{con->handleRead(con);});
-            channel->setWriteCB([=]{con->handleWrite(con);});
-            // 连接回调函数
-            if (connCb)
-            {
-                connCb(con);
-            }
-
+        TcpConnPtr con=shared_from_this();
+        channel->setReadCB([=]{con->handleRead(con);});
+        channel->setWriteCB([=]{con->handleWrite(con);});
+        // 连接回调函数
+        if (connCb)
+        {
+            connCb(con);
         }
     }
     void TcpConn::setState(State _state)
@@ -121,7 +112,7 @@ namespace ck
                 {
                     LOG_ERROR("write error,fd=%d",channel->getFd());
                 }
-                
+
             }
         }
         return sended;
@@ -160,8 +151,6 @@ namespace ck
     void TcpConn::close()
     {
         readCb=writeCb=nullptr;
-        delete channel;
-        channel=nullptr;
     }
     TcpConn::~TcpConn()
     {

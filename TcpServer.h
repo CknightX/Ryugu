@@ -7,12 +7,11 @@ TcpServer
 
 #pragma once
 
+#include "Callbacks.h"
 #include "Utils.h"
 #include "TcpConn.h"
 #include "Net.h"
 #include <memory>
-
-
 namespace ck
 {
     class EventLoop;
@@ -20,39 +19,38 @@ namespace ck
     class TcpServer;
     class EventLoopThreadPool;
 
-    using TcpServerPtr=std::shared_ptr<TcpServer>;
+
     class TcpServer : noncopyable
     {
         public:
-        TcpServer(EventLoop* _handler);
+        TcpServer(EventLoop* _loop,const net::Ipv4Addr&,bool);
         ~TcpServer(){}
+        void setThreadNum(int num);
+        void start();
 
         public:
-        // 绑定端口，同时设置listenChannel的read事件回调函数为handleAccept
         int bind(const std::string& host,unsigned short port,bool reusePort=false);
-        static TcpServerPtr startServer(EventLoop* _handler,const std::string& host,unsigned short port,bool reusePort=false);
+        int goListening();
 
-        void setThreadNum(int num);
 
-        void setReadCb(const TcpCallBack& cb){readCb=cb;}
-        void setConnCb(const TcpCallBack& cb){connCb=cb;}
+        void setMessageCb(const MessageCallback& cb){readCb=cb;}
+        void setOnConnCb(const OnConnCallback& cb){connCb=cb;}
 
 
 
         private:
         EventLoop* loop;
+        std::unique_ptr<Channel> listenChannel;
         std::shared_ptr<EventLoopThreadPool> threadPool;
 
-        net::Ipv4Addr addr;
-        Channel* listenChannel;
+        net::Ipv4Addr listenAddr;
+        bool reusePort;
 
         // 回调函数
         // 连接建立
-        TcpCallBack connCb;
+        OnConnCallback connCb;
         // 可读
         TcpCallBack readCb;
-
-        std::function<TcpConnPtr()> createCB;
 
         private:
         void handleAccept();

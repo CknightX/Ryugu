@@ -50,6 +50,8 @@ namespace ck
 			void enableRead(bool enable);
 			void enableWrite(bool enable);
 			void enableReadWrite(bool readable,bool writable);
+            void update();
+            void remove();
 
 			bool isReadEnabled(){return events&cstReadEvent;}
 			bool isWriteEnabled(){return events&cstWriteEvent;}

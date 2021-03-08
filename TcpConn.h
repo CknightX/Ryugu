@@ -35,7 +35,7 @@ public:
     };
 
     EventLoop *loop;
-    Channel *channel;
+    std::unique_ptr<Channel> channel;
     State state;
     net::Ipv4Addr local,peer;
     // 使用者定义的回调函数

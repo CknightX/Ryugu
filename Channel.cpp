@@ -5,65 +5,73 @@
 #include <atomic>
 namespace ck
 {
-Channel::Channel(EventLoop* _loop,int _fd, uint32_t _events)
-    :loop(_loop),fd(_fd),events(_events),poller(_loop->poller)
-{
-    // 设置为非阻塞套接字
-    if (net::setNonBlocking(_fd)<0)
+    Channel::Channel(EventLoop* _loop,int _fd, uint32_t _events)
+        :loop(_loop),fd(_fd),events(_events)
     {
-        LOG_ERROR("setNonBlocking failed.");
+        // 设置为非阻塞套接字
+        if (net::setNonBlocking(_fd)<0)
+        {
+            LOG_ERROR("setNonBlocking failed.");
+        }
+
+        // ID++
+        static std::atomic<int64_t> _id(0);
+        id=++_id;
+
+        // poller->addChannel(this);
+        loop->runInLoop([this]{this->loop->updateChannel(this);});
+
+        LOG("new Channel,fd=%d",_fd);
     }
 
-    // ID++
-    static std::atomic<int64_t> _id(0);
-    id=++_id;
-
-    // poller->addChannel(this);
-    loop->runInLoop([this]{this->poller->addChannel(this);});
-
-    LOG("new Channel,fd=%d",_fd);
-}
-
-void Channel::enableRead(bool enable)
-{
-    if (enable)
+    void Channel::enableRead(bool enable)
     {
-        events|=cstReadEvent;
-    }
-    else
-    {
-        events&=~cstReadEvent;
+        if (enable)
+        {
+            events|=cstReadEvent;
+        }
+        else
+        {
+            events&=~cstReadEvent;
+        }
+
     }
 
-}
-
-void Channel::enableWrite(bool enable)
-{
-    if (enable)
+    void Channel::enableWrite(bool enable)
     {
-        events|=cstWriteEvent;
+        if (enable)
+        {
+            events|=cstWriteEvent;
+        }
+        else
+        {
+            events&=~cstWriteEvent;
+        }
+
     }
-    else
+
+    void Channel::enableReadWrite(bool readable,bool writeable)
     {
-        events&=~cstWriteEvent;
+        enableRead(readable);
+        enableWrite(writeable);
     }
-    
-}
 
-void Channel::enableReadWrite(bool readable,bool writeable)
-{
-    enableRead(readable);
-    enableWrite(writeable);
-}
-
-void Channel::close()
-{
-    LOG("close channel fd %d",fd);
-    poller->removeChannel(this);
-    ::close(fd);
-    fd=-2;
-    // ?
-    //handleRead();
-}
+    void Channel::close()
+    {
+        LOG("close channel fd %d",fd);
+        loop->removeChannel(this);
+        ::close(fd);
+        fd=-2;
+        // ?
+        //handleRead();
+    }
+    void Channel::update()
+    {
+        loop->updateChannel(this);
+    }
+    void Channel::remove()
+    {
+        loop->removeChannel(this);
+    }
 
 }
