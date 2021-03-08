@@ -11,12 +11,12 @@
 
 namespace ck
 {
-class EventHandler;
+class EventLoop;
 
 class TimerQueue : noncopyable
 {
     public:
-    TimerQueue(EventHandler* _handler);
+    TimerQueue(EventLoop* _loop);
     ~TimerQueue();
 
     TimerId addTimer(const TimerCallback& cb,Timestamp when,double interval);
@@ -44,7 +44,7 @@ class TimerQueue : noncopyable
 
     static int createTimerfd();
 
-    EventHandler* handler;
+    EventLoop* loop;
     const int timerfd;
     Channel timerfdChannel;
 

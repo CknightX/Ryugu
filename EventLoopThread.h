@@ -7,20 +7,20 @@
 
 namespace ck
 {
-    class EventHandler;
+    class EventLoop;
 
 
-    class EventHandlerThread : noncopyable
+    class EventLoopThread : noncopyable
     {
         public:
-        EventHandlerThread(const std::string& name);
-        ~EventHandlerThread();
+        EventLoopThread(const std::string& name);
+        ~EventLoopThread();
 
-        EventHandler* start();
+        EventLoop* start();
 
         private:
         void threadFunc();
-        EventHandler* handler;
+        EventLoop* handler;
         // 延迟启动
         std::shared_ptr<std::thread> threadPtr;
         std::mutex mutex;

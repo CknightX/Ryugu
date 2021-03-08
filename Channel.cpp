@@ -1,12 +1,12 @@
 #include "Channel.h"
-#include "EventHandler.h"
+#include "EventLoop.h"
 #include "Debug.h"
 #include "Net.h"
 #include <atomic>
 namespace ck
 {
-Channel::Channel(EventHandler* _eh,int _fd, uint32_t _events)
-    :eh(_eh),fd(_fd),events(_events),poller(_eh->poller)
+Channel::Channel(EventLoop* _loop,int _fd, uint32_t _events)
+    :loop(_loop),fd(_fd),events(_events),poller(_loop->poller)
 {
     // 设置为非阻塞套接字
     if (net::setNonBlocking(_fd)<0)
@@ -19,7 +19,7 @@ Channel::Channel(EventHandler* _eh,int _fd, uint32_t _events)
     id=++_id;
 
     // poller->addChannel(this);
-    eh->runInLoop([this]{this->poller->addChannel(this);});
+    loop->runInLoop([this]{this->poller->addChannel(this);});
 
     LOG("new Channel,fd=%d",_fd);
 }

@@ -4,17 +4,17 @@
 namespace ck
 {
     TcpConn::TcpConn()
-        :channel(nullptr),handler(nullptr),readCb(nullptr),writeCb(nullptr),state(State::Invalid)
+        :channel(nullptr),loop(nullptr),readCb(nullptr),writeCb(nullptr),state(State::Invalid)
     {
 
     }
     // 作为服务端，创建TcpConn发生在accept之后，握手阶段已经结束
-    void TcpConn::attach(EventHandler* _handler, int fd, net::Ipv4Addr _local, net::Ipv4Addr _peer)
+    void TcpConn::attach(EventLoop* _loop, int fd, net::Ipv4Addr _local, net::Ipv4Addr _peer)
     {
         setState(Connected);
         LOG("attch fd=%d",fd);
 
-        handler=_handler;
+        loop=_loop;
         local=_local;
         peer=_peer;
 
@@ -25,7 +25,7 @@ namespace ck
         else
         {
             // 创建客户channel
-            channel=new Channel(handler,fd,cstReadEvent);
+            channel=new Channel(loop,fd,cstReadEvent);
 
             TcpConnPtr con=shared_from_this();
             channel->setReadCB([=]{con->handleRead(con);});

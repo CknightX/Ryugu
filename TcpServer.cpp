@@ -1,16 +1,16 @@
 #include "TcpServer.h"
-#include "EventHandler.h"
+#include "EventLoop.h"
 #include "Debug.h"
 #include "Channel.h"
-#include "EventHandlerThreadPool.h"
+#include "EventLoopThreadPool.h"
 #include <cstring>
 namespace ck
 {
 extern Epoll *globalEpoll;
 
-TcpServer::TcpServer(EventHandler *_handler)
-    : handler(_handler), listenChannel(nullptr), createCB([] { return TcpConnPtr(new TcpConn); }),
-      threadPool(new EventHandlerThreadPool(handler, "test"))
+TcpServer::TcpServer(EventLoop *_loop)
+    : loop(_loop), listenChannel(nullptr), createCB([] { return TcpConnPtr(new TcpConn); }),
+      threadPool(new EventLoopThreadPool(loop, "test"))
 {
 }
 
@@ -29,14 +29,14 @@ int TcpServer::bind(const std::string &host, unsigned short port, bool reusePort
     }
     r = listen(fd, 20);
 
-    listenChannel = new Channel(handler, fd, cstReadEvent);
+    listenChannel = new Channel(loop, fd, cstReadEvent);
     listenChannel->setReadCB([this] { handleAccept(); });
     return r;
 }
 
-TcpServerPtr TcpServer::startServer(EventHandler *_handler, const std::string &host, unsigned short port, bool reusePort)
+TcpServerPtr TcpServer::startServer(EventLoop *_loop, const std::string &host, unsigned short port, bool reusePort)
 {
-    TcpServerPtr p(new TcpServer(_handler));
+    TcpServerPtr p(new TcpServer(_loop));
     int r = p->bind(host, port, reusePort);
     if (r)
     {
@@ -51,8 +51,8 @@ TcpServerPtr TcpServer::startServer(EventHandler *_handler, const std::string &h
 // client端connect
 void TcpServer::handleAccept()
 {
-    EventHandler *subHandler = threadPool->getOneHandler();
-    //std::cout<<"use thread handler:"<<subHandler->threadId<<std::endl;
+    EventLoop *subLoop = threadPool->getOneLoop();
+    //std::cout<<"use thread loop:"<<subLoop->threadId<<std::endl;
     LOG("handleAccept");
     sockaddr_in cliaddr;
     socklen_t cliaddrLen = sizeof(cliaddr);
@@ -84,7 +84,7 @@ void TcpServer::handleAccept()
                 con->setConnCb(connCb);
             }
             // 将fd与TcpConnection关联起来,创建Channel
-            con->attach(subHandler, cfd, local, peer);
+            con->attach(subLoop, cfd, local, peer);
 
             // readcb
             if (readCb)

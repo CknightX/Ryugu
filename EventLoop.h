@@ -1,5 +1,5 @@
 /*
-EventHandler
+EventLoop
 */
 #pragma once
 #include <memory>
@@ -19,11 +19,11 @@ class Channel;
 
 
 // 事件处理器
-class EventHandler 
+class EventLoop 
 {
     public:
-    EventHandler();
-    ~EventHandler();
+    EventLoop();
+    ~EventLoop();
 
     void loopOnce(int waitMs);
     void loop();

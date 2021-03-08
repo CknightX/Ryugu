@@ -1,6 +1,6 @@
 #include "RyuguNet.h"
 #include "Debug.h"
-#include "EventHandlerThread.h"
+#include "EventLoopThread.h"
 #include<iostream>
 
 using namespace ck;
@@ -24,7 +24,7 @@ int main()
 // 定时器测试
 void test1()
 {
-	EventHandler handler;
+	EventLoop handler;
 	TcpServerPtr server=TcpServer::startServer(&handler,"",8080);
 	server->setConnCb([&handler](const TcpConnPtr &conn) {
 		  handler.runEvery(3, [=]() {conn->send("123"); });
@@ -38,21 +38,21 @@ void test1()
 }
 void test2()
 {
-	EventHandler handler;
+	EventLoop handler;
 	handler.runEvery(1,[]{std::cout<<"hello"<<std::endl;});
 	handler.runEvery(1,[]{std::cout<<"world"<<std::endl;});
 	handler.loop();
 }
 void test3()
 {
-	EventHandlerThread thread("hehe");
+	EventLoopThread thread("hehe");
 	thread.start();
 	while(1);
 }
 // 
 void test4()
 {
-	EventHandler handler;
+	EventLoop handler;
 	// ten threads..
 	TcpServerPtr server = TcpServer::startServer(&handler, "", 8080);
 	server->setReadCb([](const TcpConnPtr &conn) {

@@ -15,23 +15,22 @@ TcpServer
 
 namespace ck
 {
-    class EventHandler;
-    class EventHandlers;
+    class EventLoop;
     class Channel;
     class TcpServer;
-    class EventHandlerThreadPool;
+    class EventLoopThreadPool;
 
     using TcpServerPtr=std::shared_ptr<TcpServer>;
     class TcpServer : noncopyable
     {
         public:
-        TcpServer(EventHandler* _handler);
+        TcpServer(EventLoop* _handler);
         ~TcpServer(){}
 
         public:
         // 绑定端口，同时设置listenChannel的read事件回调函数为handleAccept
         int bind(const std::string& host,unsigned short port,bool reusePort=false);
-        static TcpServerPtr startServer(EventHandler* _handler,const std::string& host,unsigned short port,bool reusePort=false);
+        static TcpServerPtr startServer(EventLoop* _handler,const std::string& host,unsigned short port,bool reusePort=false);
 
         void setThreadNum(int num);
 
@@ -41,8 +40,8 @@ namespace ck
 
 
         private:
-        EventHandler* handler;
-        std::shared_ptr<EventHandlerThreadPool> threadPool;
+        EventLoop* loop;
+        std::shared_ptr<EventLoopThreadPool> threadPool;
 
         net::Ipv4Addr addr;
         Channel* listenChannel;

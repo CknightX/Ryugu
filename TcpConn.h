@@ -16,7 +16,7 @@
 
 namespace ck
 {
-class EventHandler;
+class EventLoop;
 class Channel;
 class TcpConn;
 
@@ -34,7 +34,7 @@ public:
         Failed,
     };
 
-    EventHandler *handler;
+    EventLoop *loop;
     Channel *channel;
     State state;
     net::Ipv4Addr local,peer;
@@ -60,11 +60,11 @@ public:
     void setConnCb(const TcpCallBack &cb){connCb=cb;}
 
     // 发起连接(作为客户端时)
-    void connect(EventHandler* _handler, const std::string &host, unsigned short port, int timeout, const std::string &localip);
+    void connect(EventLoop* _loop, const std::string &host, unsigned short port, int timeout, const std::string &localip);
     void reconnect();
 
     // 关联一个fd
-    void attach(EventHandler* _handler, int fd, net::Ipv4Addr _local, net::Ipv4Addr _peer);
+    void attach(EventLoop* _loop, int fd, net::Ipv4Addr _local, net::Ipv4Addr _peer);
 
     // 发送数据
     void send(const std::string& str);
@@ -80,7 +80,7 @@ public:
 
 
     template <typename C = TcpConnPtr>
-    static TcpConnPtr createConnection(EventHandler *base, const std::string &host, unsigned short port, int timeout = 0, const std::string &localip = "")
+    static TcpConnPtr createConnection(EventLoop *base, const std::string &host, unsigned short port, int timeout = 0, const std::string &localip = "")
     {
         TcpConnPtr conn(new C);
         conn->connect(base, host, port, timeout, localip);
@@ -88,10 +88,10 @@ public:
     }
 
     template <typename C = TcpConn>
-    static TcpConnPtr createConnection(EventHandler *_handler, int fd, net::Ipv4Addr local, net::Ipv4Addr peer)
+    static TcpConnPtr createConnection(EventLoop *_loop, int fd, net::Ipv4Addr local, net::Ipv4Addr peer)
     {
         TcpConnPtr conn(new C);
-        conn->attach(_handler, fd, local, peer);
+        conn->attach(_loop, fd, local, peer);
         return conn;
     }
     private:

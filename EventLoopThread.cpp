@@ -1,16 +1,16 @@
-#include "EventHandlerThread.h"
-#include "EventHandler.h"
+#include "EventLoopThread.h"
+#include "EventLoop.h"
 
 namespace ck
 {
-    EventHandlerThread::EventHandlerThread(const std::string& name)
+    EventLoopThread::EventLoopThread(const std::string& name)
     {
 
     }
-    EventHandler* EventHandlerThread::start()
+    EventLoop* EventLoopThread::start()
     {
-        threadPtr=std::make_shared<std::thread>(std::bind(&EventHandlerThread::threadFunc,this));
-        EventHandler* _handler=nullptr;
+        threadPtr=std::make_shared<std::thread>(std::bind(&EventLoopThread::threadFunc,this));
+        EventLoop* _handler=nullptr;
 
         {
             std::unique_lock<std::mutex> mux(mutex);
@@ -24,18 +24,18 @@ namespace ck
         LOG("create one thread.");
         return _handler;
     }
-    void EventHandlerThread::threadFunc()
+    void EventLoopThread::threadFunc()
     {
-        EventHandler localHandler;
+        EventLoop localLoop;
 
         // 局部作用域，为了尽快释放lock_guard
         {
             std::lock_guard<std::mutex> mux(mutex);
-            handler=&localHandler;
+            handler=&localLoop;
             condition.notify_one();
         }
 
-        localHandler.loop();
+        localLoop.loop();
 
         // ???
         std::lock_guard<std::mutex> mux(mutex);
@@ -43,7 +43,7 @@ namespace ck
 
     }
 
-    EventHandlerThread::~EventHandlerThread()
+    EventLoopThread::~EventLoopThread()
     {
 
     }

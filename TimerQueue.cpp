@@ -34,10 +34,10 @@ namespace ck
     }
 
 
-    TimerQueue::TimerQueue(EventHandler* _handler)
-    : handler(_handler),
+    TimerQueue::TimerQueue(EventLoop* _loop)
+    : loop(_loop),
     timerfd(createTimerfd()),
-    timerfdChannel(_handler,timerfd,cstReadEvent),
+    timerfdChannel(_loop,timerfd,cstReadEvent),
     timers(),
     callingExpiredTimers(false)
     {

@@ -6,32 +6,32 @@
 
 namespace ck
 {
-class EventHandler;
-class EventHandlerThread;
+class EventLoop;
+class EventLoopThread;
 
 // one loop per thread
-class EventHandlerThreadPool : noncopyable
+class EventLoopThreadPool : noncopyable
 {
     public:
-    EventHandlerThreadPool(EventHandler* _baseHandler,const std::string& _name);
-    ~EventHandlerThreadPool();
+    EventLoopThreadPool(EventLoop* _baseLoop,const std::string& _name);
+    ~EventLoopThreadPool();
     void setThreadNum(int nums){numThreads=nums;}
     void start();
 
-    EventHandler* getOneHandler();
-    std::vector<EventHandler*> getAllHandler();
+    EventLoop* getOneLoop();
+    std::vector<EventLoop*> getAllLoop();
 
     bool isStarted() const {return started;}
     const std::string& getName() const {return name;}
 
     private:
-    EventHandler* baseHandler;
+    EventLoop* baseLoop;
     std::string name;
     bool started;
     int numThreads;
     // 下一次选择的handler序号
     int next;
-    std::vector<std::unique_ptr<EventHandlerThread>> threads;
-    std::vector<EventHandler*> handlers;
+    std::vector<std::unique_ptr<EventLoopThread>> threads;
+    std::vector<EventLoop*> handlers;
 };
 }

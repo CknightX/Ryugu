@@ -10,11 +10,11 @@ Channel
 
 namespace ck 
 {
-	class EventHandler;
+	class EventLoop;
 	class Poller;
 
 	using ID = int64_t;
-	using Task=std::function<void()>;
+	using EventCallback=std::function<void()>;
 
 	const auto cstReadEvent=EPOLLIN;
 	const auto cstWriteEvent=EPOLLOUT;
@@ -25,7 +25,7 @@ namespace ck
 	class Channel 
 	{
 		public:
-			Channel(EventHandler* _eh, int _fd, uint32_t _events);
+			Channel(EventLoop* _loop, int _fd, uint32_t _events);
 			~Channel(){close();}
 
 		public:
@@ -39,11 +39,11 @@ namespace ck
 
 
 			// 设置读写的回调函数
-			void setReadCB(const Task& readcb){readCallback=readcb;}
-			void setWriteCB(const Task& writecb){writeCallback=writecb;}
+			void setReadCB(const EventCallback& readcb){readCallback=readcb;}
+			void setWriteCB(const EventCallback& writecb){writeCallback=writecb;}
 
-			void setReadCB(Task&& readcb){readCallback=std::move(readcb);}
-			void setWriteCB(Task&& writecb){writeCallback=std::move(writecb);}
+			void setReadCB(EventCallback&& readcb){readCallback=std::move(readcb);}
+			void setWriteCB(EventCallback&& writecb){writeCallback=std::move(writecb);}
 
 
 			// 开启/关闭读写事件监听
@@ -56,17 +56,16 @@ namespace ck
 
 			void handleRead(){readCallback();}
 			void handleWrite(){writeCallback();}
-
-		protected:
-			EventHandler* eh;
+        private:
+			EventLoop* loop;
 			Poller* poller;
 			int fd;
 			
 			uint32_t events;
 			ID id;
-			// channel的回调函数不需要参数，需要的参数已经被绑定到lambda闭包中了
-			Task readCallback, writeCallback, errorCallback;
-		private:
 
+			EventCallback readCallback;
+            EventCallback writeCallback;
+            EventCallback errorCallback;
 	};
 }

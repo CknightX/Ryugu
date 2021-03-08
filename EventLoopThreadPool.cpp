@@ -1,10 +1,10 @@
-#include "EventHandlerThreadPool.h"
-#include "EventHandlerThread.h"
+#include "EventLoopThreadPool.h"
+#include "EventLoopThread.h"
 #include "Debug.h"
 namespace ck
 {
-    EventHandlerThreadPool::EventHandlerThreadPool(EventHandler* _baseHandler,const std::string& _name)
-    :baseHandler(_baseHandler),
+    EventLoopThreadPool::EventLoopThreadPool(EventLoop* _baseLoop,const std::string& _name)
+    :baseLoop(_baseLoop),
     name(_name),
     started(false),
     numThreads(0),
@@ -12,12 +12,12 @@ namespace ck
     {
 
     }
-    EventHandlerThreadPool::~EventHandlerThreadPool()
+    EventLoopThreadPool::~EventLoopThreadPool()
     {
 
     }
 
-    void EventHandlerThreadPool::start()
+    void EventLoopThreadPool::start()
     {
         if (started)
             return;
@@ -28,15 +28,15 @@ namespace ck
         {
             LOG("The number of threads:%d",numThreads);
             std::string tname=name+std::to_string(i);
-            EventHandlerThread* t=new EventHandlerThread(tname);
-            threads.push_back(std::unique_ptr<EventHandlerThread>(t));
+            EventLoopThread* t=new EventLoopThread(tname);
+            threads.push_back(std::unique_ptr<EventLoopThread>(t));
             handlers.push_back(t->start());
         }
     }
 
-    EventHandler* EventHandlerThreadPool::getOneHandler()
+    EventLoop* EventLoopThreadPool::getOneLoop()
     {
-        EventHandler* handler=baseHandler;
+        EventLoop* handler=baseLoop;
 
         if (!handlers.empty())
         {
@@ -47,12 +47,12 @@ namespace ck
         return handler;
     }
 
-    std::vector<EventHandler*> EventHandlerThreadPool::getAllHandler()
+    std::vector<EventLoop*> EventLoopThreadPool::getAllLoop()
     {
 
         if (handlers.empty())
         {
-            return std::vector<EventHandler*>{baseHandler};
+            return std::vector<EventLoop*>{baseLoop};
         }
         else
         {

@@ -1,4 +1,4 @@
-#include "EventHandler.h"
+#include "EventLoop.h"
 #include <unistd.h>
 #include <sys/eventfd.h>
 namespace ck{
@@ -16,7 +16,7 @@ int createEventfd()
 }
 
 
-EventHandler::EventHandler()
+EventLoop::EventLoop()
 :isStop(false),
 poller(PollerFactory::getPoller()),
 timerQueue(new TimerQueue(this)),
@@ -24,18 +24,18 @@ wakeupfd(createEventfd()),
 wakeupChannel(new Channel(this,wakeupfd,cstReadEvent)),
 threadId(std::this_thread::get_id())
 {
-    wakeupChannel->setReadCB(std::bind(&EventHandler::handleEventfdRead,this));
+    wakeupChannel->setReadCB(std::bind(&EventLoop::handleEventfdRead,this));
 }
-EventHandler::~EventHandler()
+EventLoop::~EventLoop()
 {
     
 }
 
-void EventHandler::loopOnce(int waitMs)
+void EventLoop::loopOnce(int waitMs)
 {
     poller->loopOnce(waitMs);
 }
-void EventHandler::loop()
+void EventLoop::loop()
 {
     while(!isStop)
     {
@@ -44,22 +44,22 @@ void EventHandler::loop()
     }
 }
 
-TimerId EventHandler::runAt(Timestamp time,TimerCallback cb)
+TimerId EventLoop::runAt(Timestamp time,TimerCallback cb)
 {
     return timerQueue->addTimer(std::move(cb),time,0.0);
 }
-TimerId EventHandler::runAfter(double delay, TimerCallback cb)
+TimerId EventLoop::runAfter(double delay, TimerCallback cb)
 {
     auto time = Timestamp::getNow().addTime(delay);
     return runAt(time,std::move(cb));
 }
-TimerId EventHandler::runEvery(double interval, TimerCallback cb)
+TimerId EventLoop::runEvery(double interval, TimerCallback cb)
 {
     auto time=Timestamp::getNow().addTime(interval);
     return timerQueue->addTimer(std::move(cb),time,interval);
 }
 
-void EventHandler::runInLoop(Functor cb)
+void EventLoop::runInLoop(Functor cb)
 {
     // 如果在这个handler loop的线程执行cb，则直接执行，否则添加到对应的任务队列
     if (isInLoopThread())
@@ -72,12 +72,12 @@ void EventHandler::runInLoop(Functor cb)
         wakeup();
     }
 }
-bool EventHandler::isInLoopThread() const
+bool EventLoop::isInLoopThread() const
 {
     return threadId==std::this_thread::get_id();
 }
 
-void EventHandler::queueInLoop(Functor cb)
+void EventLoop::queueInLoop(Functor cb)
 {
     {
         std::unique_lock<std::mutex> lock(mutex);
@@ -91,7 +91,7 @@ void EventHandler::queueInLoop(Functor cb)
     }
 }
 
-void EventHandler::doPendingFunctors()
+void EventLoop::doPendingFunctors()
 {
     std::vector<Functor> functors;
     callingPendingFunctors=true;
@@ -107,7 +107,7 @@ void EventHandler::doPendingFunctors()
     callingPendingFunctors=false;
 }
 
-void EventHandler::wakeup()
+void EventLoop::wakeup()
 {
     uint64_t one=1;
     ssize_t n=::write(wakeupfd,&one,sizeof one);
@@ -116,7 +116,7 @@ void EventHandler::wakeup()
         LOG_ERROR("wakeup error");
     }
 }
-void EventHandler::handleEventfdRead()
+void EventLoop::handleEventfdRead()
 {
     uint64_t one=1;
     ssize_t n=::read(wakeupfd,&one,sizeof one);

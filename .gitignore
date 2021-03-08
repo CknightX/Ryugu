@@ -1,4 +1,5 @@
 *.o
+Test
 test
 echo
 .vscode/
