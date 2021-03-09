@@ -5,7 +5,7 @@
 #include <functional>
 #include <atomic>
 
-namespace ck
+namespace ryugu
 {
 
     class Timer : noncopyable

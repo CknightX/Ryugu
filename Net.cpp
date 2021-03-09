@@ -1,6 +1,6 @@
 #include "Net.h"
 #include <cstring>
-namespace ck
+namespace ryugu
 {
 namespace net
 {
@@ -23,4 +23,4 @@ int setNonBlocking(int fd)
 }
 
 } // namespace net
-} // namespace ck
+} // namespace ryugu

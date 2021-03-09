@@ -1,7 +1,7 @@
 #include "EventLoopThread.h"
 #include "EventLoop.h"
 
-namespace ck
+namespace ryugu
 {
     EventLoopThread::EventLoopThread(const std::string& name)
     {

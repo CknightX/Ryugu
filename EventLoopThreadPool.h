@@ -4,7 +4,7 @@
 #include "Utils.h"
 #include "Callbacks.h"
 
-namespace ck
+namespace ryugu
 {
 class EventLoop;
 class EventLoopThread;

@@ -3,7 +3,7 @@
 #include "Debug.h"
 #include "Net.h"
 #include <atomic>
-namespace ck
+namespace ryugu
 {
     Channel::Channel(EventLoop* _loop,int _fd)
         :loop(_loop),fd(_fd),events(0)

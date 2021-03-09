@@ -5,7 +5,7 @@
 #include <memory>
 #include "Utils.h"
 
-namespace ck
+namespace ryugu
 {
     class EventLoop;
 

@@ -9,7 +9,7 @@ Channel
 #include <memory>
 #include "Netheaders.h"
 
-namespace ck 
+namespace ryugu
 {
 	class EventLoop;
 	class Poller;

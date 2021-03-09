@@ -1,5 +1,5 @@
 #include "Timer.h"
-namespace ck
+namespace ryugu
 {
     void Timer::restart(Timestamp now)
     {

@@ -3,7 +3,7 @@
 #include<unistd.h>
 #include<iostream>
 #include <algorithm>
-namespace ck
+namespace ryugu
 {
 Buffer::Buffer()
     : bg(0), ed(0)
@@ -51,4 +51,4 @@ std::string Buffer::readOutAsString(size_t len)
 }
 
 
-} // namespace ck
+} // namespace ryugu

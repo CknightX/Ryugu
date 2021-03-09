@@ -5,7 +5,7 @@
 #include <cstring>
 #include <iostream>
 
-namespace ck 
+namespace ryugu 
 {
 
 Epoll *globalEpoll;
@@ -105,4 +105,4 @@ void Epoll::loopOnce(int waitMs)
 }
 
 std::atomic<int64_t> Poller::_id(0);
-} // namespace ck
+} // namespace ryugu

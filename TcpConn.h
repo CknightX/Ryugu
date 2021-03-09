@@ -14,7 +14,7 @@
 
 
 
-namespace ck
+namespace ryugu
 {
 class EventLoop;
 class Channel;
@@ -93,4 +93,4 @@ public:
     void fillReadBuf();
 };
 
-} // namespace ck
+} // namespace ryugu

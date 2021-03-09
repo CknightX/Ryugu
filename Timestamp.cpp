@@ -2,7 +2,7 @@
 #include <sys/time.h>
 #include <inttypes.h>
 
-namespace ck
+namespace ryugu
 {
     std::string Timestamp::toString() const
     {

@@ -6,7 +6,7 @@
 #include <vector>
 #include <string>
 
-namespace ck
+namespace ryugu
 {
     class Buffer
     {

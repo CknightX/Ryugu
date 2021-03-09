@@ -4,7 +4,7 @@
 #include "Net.h"
 #include<iostream>
 
-using namespace ck;
+using namespace ryugu;
 // Timer test1
 void test1();
 //Timer test2

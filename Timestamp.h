@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <string>
 
-namespace ck
+namespace ryugu
 {
 
 
@@ -50,4 +50,4 @@ public:
 private:
     int64_t microSecondsSinceLastPoll;
 };
-} // namespace ck
+} // namespace ryugu

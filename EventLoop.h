@@ -12,7 +12,7 @@ EventLoop
 #include "TimerQueue.h"
 #include "Timer.h"
 
-namespace ck
+namespace ryugu
 {
 
 class Channel;

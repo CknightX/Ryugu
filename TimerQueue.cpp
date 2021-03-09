@@ -6,7 +6,7 @@
 #include <cassert>
 #include "Debug.h"
 
-namespace ck
+namespace ryugu
 {
     void readTimerfd(int timerfd,Timestamp now)
     {
@@ -213,4 +213,4 @@ namespace ck
         return timerfd;
     }
 
-    } // namespace ck
+    } // namespace ryugu

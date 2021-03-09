@@ -2,7 +2,7 @@
 #include <cstdint>
 
 
-namespace ck
+namespace ryugu
 {
     class Timer;
 

@@ -5,7 +5,7 @@
 #include "Channel.h"
 #include "EventLoopThreadPool.h"
 #include <cstring>
-namespace ck
+namespace ryugu
 {
 
     TcpServer::TcpServer(EventLoop *_loop,const net::Ipv4Addr& _listenAddr, bool reusePort)
@@ -118,6 +118,6 @@ namespace ck
             conn->connectDestroyed();
         });
     }
-} // namespace ck
+} // namespace ryugu
 
-// namespace ck
+// namespace ryugu

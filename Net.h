@@ -3,7 +3,7 @@
 #include <fcntl.h>
 #include <string>
 
-namespace ck
+namespace ryugu
 {
     namespace net
     {
@@ -25,4 +25,4 @@ namespace ck
         };
         int setNonBlocking(int fd);
     }
-} // namespace ck
+} // namespace ryugu

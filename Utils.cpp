@@ -2,7 +2,7 @@
 #include "Debug.h"
 #include <sys/timerfd.h>
 
-namespace ck
+namespace ryugu
 {
     std::string strEvents(uint32_t events)
     {

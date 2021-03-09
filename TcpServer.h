@@ -14,7 +14,7 @@ TcpServer
 #include "Utils.h"
 #include "TcpConn.h"
 #include "Net.h"
-namespace ck
+namespace ryugu
 {
     class EventLoop;
     class Channel;

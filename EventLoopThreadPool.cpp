@@ -1,7 +1,7 @@
 #include "EventLoopThreadPool.h"
 #include "EventLoopThread.h"
 #include "Debug.h"
-namespace ck
+namespace ryugu
 {
     EventLoopThreadPool::EventLoopThreadPool(EventLoop* _baseLoop,const std::string& _name)
     :baseLoop(_baseLoop),

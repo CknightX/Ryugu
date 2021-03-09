@@ -9,7 +9,7 @@
 #include "Channel.h"
 
 
-namespace ck
+namespace ryugu
 {
 class EventLoop;
 

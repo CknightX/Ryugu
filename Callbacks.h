@@ -2,7 +2,7 @@
 #include <memory>
 #include <functional>
 
-namespace ck
+namespace ryugu
 {
     class TcpConn;
     class EventLoop;

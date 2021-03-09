@@ -2,7 +2,7 @@
 #include "Callbacks.h"
 #include "TcpConn.h"
 
-namespace ck
+namespace ryugu
 {
     class EventHandler;
     class TcpClient

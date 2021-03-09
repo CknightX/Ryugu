@@ -1,7 +1,7 @@
 #include "TcpConn.h"
 #include "Channel.h"
 #include "Debug.h"
-namespace ck
+namespace ryugu
 {
     TcpConn::TcpConn(EventLoop* loop, int sockfd, net::Ipv4Addr localAddr, net::Ipv4Addr peerAddr)
         :loop_(loop),
@@ -162,4 +162,4 @@ namespace ck
     }
 
 
-} // namespace ck
+} // namespace ryugu
