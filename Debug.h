@@ -5,6 +5,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include <inttypes.h>
 
 #ifdef DEBUG
 

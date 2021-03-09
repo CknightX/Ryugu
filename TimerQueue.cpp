@@ -12,7 +12,7 @@ namespace ck
     {
         uint64_t howmany;
         ssize_t n=::read(timerfd,&howmany,sizeof howmany);
-        LOG("TimerQueue::handleRead() %ud at %s",howmany,now.toString().data());
+        LOG("TimerQueue::handleRead() %" PRIu64 " at %s",howmany,now.toString().data());
         if (n!=sizeof(howmany))
         {
             LOG_ERROR("readTimerfd error");

@@ -20,7 +20,7 @@ namespace ck
     void TcpServer::start()
     {
         int r=goListening();
-        setThreadNum(1);
+        setThreadNum(10);
         threadPool->start();
     }
 
@@ -28,6 +28,7 @@ namespace ck
     {
         int fd = socket(AF_INET, SOCK_STREAM, 0);
         int one=1;
+		// reuse addr
         if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one)) < 0)
         {
             close(fd);
@@ -103,6 +104,7 @@ namespace ck
     void TcpServer::removeConnection(const TcpConnPtr& conn)
     {
         // 对connMap操作需要在主进程
+		// 必须值捕获conn，二次引用绑定无法继续延长临时变量生命期
         loop_->runInLoop([this,conn]{
             removeConnectionInLoop(conn);
         });
@@ -110,7 +112,6 @@ namespace ck
     void TcpServer::removeConnectionInLoop(const TcpConnPtr& conn)
     {
         LOG("removeConnectionInLoop.");
-        LOG("use count=%d",conn.use_count());
         connMap.erase(conn->getFd());
         auto ioLoop=conn->getLoop();
         ioLoop->queueInLoop([this,conn]{

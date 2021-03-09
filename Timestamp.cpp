@@ -1,5 +1,6 @@
 #include "Timestamp.h"
 #include <sys/time.h>
+#include <inttypes.h>
 
 namespace ck
 {
@@ -8,7 +9,7 @@ namespace ck
         char buf[32] = {0};
         int64_t seconds = microSecondsSinceLastPoll / cstMicroSecondsPerSecond;
         int64_t microseconds = microSecondsSinceLastPoll % cstMicroSecondsPerSecond;
-        snprintf(buf, sizeof(buf) - 1, "%" "lld" ".%06" "lld" "", seconds, microseconds);
+        snprintf(buf, sizeof(buf) - 1, "%" PRId64 ".%06" PRId64 "", seconds, microseconds);
         return buf;
     }
     Timestamp Timestamp::getNow()

@@ -127,7 +127,6 @@ namespace ck
         {
             LOG_ERROR("read eventfd failed.");
         }
-        MARK
 
     }
     void EventLoop::updateChannel(Channel* channel)
