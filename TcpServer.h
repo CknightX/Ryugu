@@ -9,6 +9,7 @@ TcpServer
 
 #include <vector>
 #include <memory>
+#include <unordered_map>
 #include "Callbacks.h"
 #include "Utils.h"
 #include "TcpConn.h"
@@ -40,8 +41,9 @@ namespace ck
 
 
         private:
-        EventLoop* loop;
-        std::vector<TcpConnPtr> conns;
+        EventLoop* loop_;
+        // fd->conn
+        std::unordered_map<int,TcpConnPtr> connMap;
 
         std::unique_ptr<Channel> listenChannel;
         std::shared_ptr<EventLoopThreadPool> threadPool;
@@ -57,11 +59,8 @@ namespace ck
 
         private:
         void handleAccept();
-
-
-
-
-
+        void removeConnection(const TcpConnPtr&);
+        void removeConnectionInLoop(const TcpConnPtr&);
 
     };
 }

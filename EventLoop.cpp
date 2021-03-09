@@ -62,12 +62,15 @@ namespace ck
     void EventLoop::runInLoop(Functor cb)
     {
         // 如果在这个handler loop的线程执行cb，则直接执行，否则添加到对应的任务队列
+        LOG("runInLoop..");
         if (isInLoopThread())
         {
+            LOG("In this Loop, just run.");
             cb();
         }
         else
         {
+            LOG("Not In this Loop, queue It.");
             queueInLoop(cb);
             wakeup();
         }

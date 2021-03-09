@@ -5,21 +5,26 @@ namespace ck
 {
     TcpConn::TcpConn(EventLoop* loop, int sockfd, net::Ipv4Addr localAddr, net::Ipv4Addr peerAddr)
         :loop_(loop),
-         state_(Invalid),
-         channel_(new Channel(loop,sockfd)),
-         localAddr_(localAddr),
-         peerAddr_(peerAddr)
+        state_(Invalid),
+        channel_(new Channel(loop,sockfd)),
+        localAddr_(localAddr),
+        peerAddr_(peerAddr)
     {
         channel_->setReadCB([this]{this->handleRead();});
         channel_->setWriteCB([this]{this->handleWrite();});
     }
     TcpConn::~TcpConn()
     {
+        ::close(getFd());
         LOG("TcpConnection desconstruction.");
     }
     void TcpConn::setState(State state)
     {
         state_=state;
+    }
+    int TcpConn::getFd() const
+    {
+        return channel_->getFd();
     }
 
     // 暂时先不管TCP状态..
@@ -39,10 +44,6 @@ namespace ck
         channel_->tie(shared_from_this());
         // 线程不安全
         channel_->enableRead(true);
-   }
-    void TcpConn::connectDestroyed()
-    {
-
     }
     void TcpConn::handleWrite()
     {
@@ -138,7 +139,7 @@ namespace ck
             {
                 // 关闭tcp连接，释放channel
                 LOG("lost");
-                close();
+                handleClose();
                 break;
             }
             else
@@ -147,9 +148,18 @@ namespace ck
             }
         }
     }
-    void TcpConn::close()
+    void TcpConn::handleClose()
     {
-        // TODO
+        setState(Disconnected);
+        channel_->enableAll(false);
+        TcpConnPtr guardThis(shared_from_this());
+        //connCb(guardThis);
+        closeCb(guardThis);
     }
+    void TcpConn::connectDestroyed()
+    {
+        channel_->remove();
+    }
+
 
 } // namespace ck

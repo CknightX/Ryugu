@@ -30,6 +30,7 @@ public:
         Invalid = 1,
         Handshaking,  //握手
         Connecting,    // 连接
+        Disconnected,
         Closed,
         Failed,
     };
@@ -39,7 +40,7 @@ public:
     State state_;
     net::Ipv4Addr localAddr_,peerAddr_;
     // 使用者定义的回调函数
-    TcpCallBack readCb, writeCb, connCb;
+    TcpCallBack readCb, writeCb, connCb, closeCb;
 
     Buffer readBuf,writeBuf;
 
@@ -50,6 +51,9 @@ public:
     // 绑定至channel的回调函数
     void handleRead();
     void handleWrite();
+    
+    // 自用
+    void handleClose();
 
     void setState(State _state);
 
@@ -57,6 +61,7 @@ public:
     void setReadCb(const TcpCallBack &cb){readCb=cb;}
     void setWriteCb(const TcpCallBack &cb){writeCb=cb;}
     void setConnCb(const TcpCallBack &cb){connCb=cb;}
+    void setCloseCb(const TcpCallBack& cb){closeCb=cb;}
 
     // 发起连接(作为客户端时)
     void connect(EventLoop* _loop, const std::string &host, unsigned short port, int timeout, const std::string &localip);
@@ -75,8 +80,9 @@ public:
 
     // 将当前readBuf中的所有数据以string返回
     std::string getInput() ;
+    EventLoop* getLoop() const {return loop_;}
+    int getFd()const;
 
-    void close();
 
 
 

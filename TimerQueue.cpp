@@ -49,7 +49,6 @@ namespace ck
 
     TimerQueue::~TimerQueue()
     {
-        timerfdChannel.close();
         ::close(timerfd);
     }
 

@@ -25,10 +25,6 @@ Epoll::Epoll()
 
 Epoll::~Epoll()
 {
-	LOG("destroying poller %d", epollFd);
-	while (liveChannels.size())
-		(*liveChannels.begin())->close();
-
 	// 关闭epoll的fd
 	::close(epollFd);
 

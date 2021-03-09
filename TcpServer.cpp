@@ -9,11 +9,11 @@ namespace ck
 {
 
     TcpServer::TcpServer(EventLoop *_loop,const net::Ipv4Addr& _listenAddr, bool reusePort)
-        :loop(_loop),
+        :loop_(_loop),
         listenAddr(_listenAddr),
         reusePort(reusePort),
         listenChannel(nullptr),
-        threadPool(new EventLoopThreadPool(loop, "test"))
+        threadPool(new EventLoopThreadPool(loop_, "test"))
     {
     }
 
@@ -44,9 +44,10 @@ namespace ck
         }
         r = listen(fd, 20);
 
-        listenChannel.reset(new Channel(loop, fd));
+        listenChannel.reset(new Channel(loop_, fd));
         LOG("listenChannel created.");
         listenChannel->setReadCB([this] { handleAccept(); });
+        listenChannel->enableRead(true);
         return r;
     } 
     // client端connect
@@ -78,23 +79,43 @@ namespace ck
                 }
                 // 构造TcpConn
                 TcpConnPtr conn(new TcpConn(subLoop,cfd,local,peer));
+                // 加入连接池
+                connMap[cfd]=conn;
                 // 回调
                 conn->setConnCb(connCb);
                 conn->setReadCb(readCb);
+                conn->setCloseCb([this](const TcpConnPtr& conn){
+                    removeConnection(conn);
+                });
 
                 // IO线程调用establish->channel纳入poller中开始事件循环
                 subLoop->runInLoop([conn]{
                     conn->connectEstablished();
                 });
 
-                // 加入连接池
-                conns.emplace_back(conn);
             }
         }
     }
     void TcpServer::setThreadNum(int num)
     {
         threadPool->setThreadNum(num);
+    }
+    void TcpServer::removeConnection(const TcpConnPtr& conn)
+    {
+        // 对connMap操作需要在主进程
+        loop_->runInLoop([this,conn]{
+            removeConnectionInLoop(conn);
+        });
+    }
+    void TcpServer::removeConnectionInLoop(const TcpConnPtr& conn)
+    {
+        LOG("removeConnectionInLoop.");
+        LOG("use count=%d",conn.use_count());
+        connMap.erase(conn->getFd());
+        auto ioLoop=conn->getLoop();
+        ioLoop->queueInLoop([this,conn]{
+            conn->connectDestroyed();
+        });
     }
 } // namespace ck
 

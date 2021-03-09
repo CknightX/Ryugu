@@ -27,16 +27,13 @@ namespace ck
 	{
 		public:
 			Channel(EventLoop* _loop, int _fd);
-			~Channel(){close();}
+			~Channel();
 
 		public:
 			int getFd() const {return fd;}
 			ID getId() const {return id;}	
 
 			uint32_t getEvents() const {return events;}
-
-			// TODO
-			void close();
 
 
 			// 设置读写的回调函数
@@ -50,7 +47,7 @@ namespace ck
 			// 开启/关闭读写事件监听
 			void enableRead(bool enable);
 			void enableWrite(bool enable);
-			void enableReadWrite(bool readable,bool writable);
+            void enableAll(bool enable);
             void update();
             void remove();
 

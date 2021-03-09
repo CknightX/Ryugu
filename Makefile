@@ -47,6 +47,7 @@ EventLoopThreadPool.o : EventLoopThreadPool.cpp
 clean:
 	rm -f *.o
 	rm -f test
+	rm -f Test
 
 run :
 	./test

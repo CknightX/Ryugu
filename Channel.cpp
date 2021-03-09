@@ -6,7 +6,7 @@
 namespace ck
 {
     Channel::Channel(EventLoop* _loop,int _fd)
-        :loop(_loop),fd(_fd),events(cstReadEvent)
+        :loop(_loop),fd(_fd),events(0)
     {
         static std::atomic<int64_t> _id(0);
         id=++_id;
@@ -18,6 +18,10 @@ namespace ck
 
         LOG("new Channel,fd=%d",_fd);
     }
+	Channel::~Channel()
+	{
+		LOG("Channel deleted. fd=%d", fd);
+	}
 
     void Channel::enableRead(bool enable)
     {
@@ -46,21 +50,21 @@ namespace ck
         update();
     }
 
-    void Channel::enableReadWrite(bool readable,bool writeable)
+    void Channel::enableAll(bool enable)
     {
-        enableRead(readable);
-        enableWrite(writeable);
+        if (enable)
+        {
+            events|=cstReadEvent;
+            events|=cstWriteEvent;
+        }
+        else
+        {
+            events&=~cstReadEvent;
+            events&=~cstWriteEvent;
+        }
+        update();
     }
 
-    void Channel::close()
-    {
-        LOG("close channel fd %d",fd);
-        loop->removeChannel(this);
-        ::close(fd);
-        fd=-2;
-        // ?
-        //handleRead();
-    }
     void Channel::update()
     {
         loop->updateChannel(this);
