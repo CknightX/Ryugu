@@ -3,12 +3,13 @@
 #include "Net.h"
 #include "Debug.h"
 #include "Channel.h"
+#include "SocketsOps.h"
 #include "EventLoopThreadPool.h"
 #include <cstring>
 namespace ryugu
 {
 
-    TcpServer::TcpServer(EventLoop *_loop,const net::Ipv4Addr& _listenAddr, bool reusePort)
+    TcpServer::TcpServer(EventLoop *_loop,const net::InetAddr& _listenAddr, bool reusePort)
         :loop_(_loop),
         listenAddr(_listenAddr),
         reusePort(reusePort),
@@ -35,7 +36,7 @@ namespace ryugu
             return -1;
         }
 
-        int r = ::bind(fd, (sockaddr *)&listenAddr.getAddr(), sizeof(sockaddr));
+        int r = ::bind(fd, listenAddr.getSockAddr(), sizeof(sockaddr));
         if (r)
         {
             ::close(fd);
@@ -65,21 +66,11 @@ namespace ryugu
         {
             while ((cfd = accept(lfd, (sockaddr *)&cliaddr, &cliaddrLen)) >= 0)
             {
-                sockaddr_in peer, local;
-                socklen_t addrLen = sizeof(peer);
-                int r = getpeername(cfd, (sockaddr *)&peer, &addrLen);
-                if (r < 0)
-                {
-                    LOG_ERROR("get peer name failed");
-                    continue;
-                }
-                r = getsockname(cfd, (sockaddr *)&local, &addrLen);
-                if (r < 0)
-                {
-                    LOG_ERROR("getsockname failed");
-                }
+				auto localAddr = net::InetAddr(net::sockets::getLocalAddr(cfd));
+				auto peerAddr = net::InetAddr(net::sockets::getPeerAddr(cfd));
+
                 // 构造TcpConn
-                TcpConnPtr conn(new TcpConn(subLoop,cfd,local,peer));
+                TcpConnPtr conn(new TcpConn(subLoop,cfd,localAddr,peerAddr));
                 // 加入连接池
                 connMap[cfd]=conn;
                 // 回调
@@ -114,6 +105,7 @@ namespace ryugu
         LOG("removeConnectionInLoop.");
         connMap.erase(conn->getFd());
         auto ioLoop=conn->getLoop();
+		// 同上
         ioLoop->queueInLoop([this,conn]{
             conn->connectDestroyed();
         });

@@ -14,6 +14,7 @@ TcpServer
 #include "Utils.h"
 #include "TcpConn.h"
 #include "Net.h"
+#include "InetAddr.h"
 namespace ryugu
 {
     class EventLoop;
@@ -25,7 +26,7 @@ namespace ryugu
     class TcpServer : noncopyable
     {
         public:
-        TcpServer(EventLoop* _loop,const net::Ipv4Addr&,bool);
+        TcpServer(EventLoop* _loop,const net::InetAddr&,bool);
         ~TcpServer(){}
         void setThreadNum(int num);
         void start();
@@ -48,7 +49,7 @@ namespace ryugu
         std::unique_ptr<Channel> listenChannel;
         std::shared_ptr<EventLoopThreadPool> threadPool;
 
-        net::Ipv4Addr listenAddr;
+        net::InetAddr listenAddr;
         bool reusePort;
 
         // 回调函数

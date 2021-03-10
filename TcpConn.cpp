@@ -3,10 +3,11 @@
 #include "Debug.h"
 namespace ryugu
 {
-    TcpConn::TcpConn(EventLoop* loop, int sockfd, net::Ipv4Addr localAddr, net::Ipv4Addr peerAddr)
+    TcpConn::TcpConn(EventLoop* loop, int sockfd, net::InetAddr localAddr, net::InetAddr peerAddr)
         :loop_(loop),
         state_(Invalid),
         channel_(new Channel(loop,sockfd)),
+		socket_(new net::Socket(sockfd)),
         localAddr_(localAddr),
         peerAddr_(peerAddr)
     {
@@ -15,7 +16,6 @@ namespace ryugu
     }
     TcpConn::~TcpConn()
     {
-        ::close(getFd());
         LOG("TcpConnection desconstruction.");
     }
     void TcpConn::setState(State state)
@@ -42,7 +42,7 @@ namespace ryugu
     {
         setState(Connecting);
         channel_->tie(shared_from_this());
-        // 线程不安全
+        // 线程不安全，所以要放到io线程执行
         channel_->enableRead(true);
     }
     void TcpConn::handleWrite()
@@ -128,6 +128,7 @@ namespace ryugu
             {
                 // 被中断打断
                 if (errno == EINTR)
+	
                     continue;
 
                 // LT模式读取完毕

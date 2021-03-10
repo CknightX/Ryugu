@@ -1,9 +1,16 @@
 CC = g++ -std=c++11 -g -pthread
-OBJ = Channel.o EventLoop.o Poller.o TcpConn.o Utils.o TcpServer.o Net.o Buffer.o\
-TimerQueue.o Timestamp.o Timer.o EventLoopThread.o EventLoopThreadPool.o 
+OBJ = SocketsOps.o Channel.o EventLoop.o Poller.o TcpConn.o Utils.o TcpServer.o Net.o Buffer.o\
+TimerQueue.o Timestamp.o Timer.o EventLoopThread.o EventLoopThreadPool.o InetAddr.o Socket.o
 
 all : $(OBJ) Test.o 
 	$(CC) $(OBJ) Test.o -o Test
+
+
+InetAddr.o : InetAddr.cpp
+	$(CC) $< -c -o $@
+
+SocketsOps.o : SocketsOps.cpp
+	$(CC) $< -c -o $@
 
 Buffer.o : Buffer.cpp
 	$(CC) $< -c -o $@
@@ -40,6 +47,8 @@ TimerQueue.o : TimerQueue.cpp
 EventLoopThread.o : EventLoopThread.cpp
 	$(CC) $< -c -o $@
 EventLoopThreadPool.o : EventLoopThreadPool.cpp
+	$(CC) $< -c -o $@
+Socket.o : Socket.cpp
 	$(CC) $< -c -o $@
 
 

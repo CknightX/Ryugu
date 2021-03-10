@@ -7,6 +7,7 @@ Utils
 #pragma once
 
 #include<string>
+#include <string.h>
 
 
 namespace ryugu
@@ -20,6 +21,7 @@ namespace ryugu
         noncopyable(const noncopyable&) = delete;
         noncopyable& operator=(const noncopyable&) = delete;
     };
+	inline void memZero(void* p, size_t n) { memset(p, 0, n); }
 
 
     std::string strEvents(uint32_t events);

@@ -2,6 +2,7 @@
 #include "Debug.h"
 #include "EventLoopThread.h"
 #include "Net.h"
+#include "InetAddr.h"
 #include<iostream>
 
 using namespace ryugu;
@@ -57,7 +58,7 @@ void test4()
 {
 	EventLoop loop;
 	// ten threads..
-    net::Ipv4Addr listen_addr("",8081);
+    net::InetAddr listen_addr("",8081);
     TcpServer server(&loop,listen_addr,false);
     server.start();
 	server.setMessageCb([](const TcpConnPtr &conn) {

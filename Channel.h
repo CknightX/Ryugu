@@ -59,7 +59,8 @@ namespace ryugu
 
             void tie(const std::shared_ptr<void>& obj);
         private:
-            // for TcpConn
+			// tied in  TcpConn::connectEstablished
+			// 执行channel的回调函数时，lock之，防止过程中TcpConn意外析构而导致自身被析构
             std::weak_ptr<void> tie_;
             bool tied_;
 
