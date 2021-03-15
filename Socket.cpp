@@ -32,7 +32,22 @@ namespace ryugu
 			int optval = enable ? 1 : 0;
 			::setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY,
 				&optval, static_cast<socklen_t>(sizeof optval));
-
+		}
+		void Socket::setReuseAddr(bool enable)
+		{
+			int optval = enable ? 1 : 0;
+			::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR,
+				&optval, static_cast<socklen_t>(sizeof(optval)));
+		}
+		void Socket::setReusePort(bool enable)
+		{
+			// TODO
+		}
+		void Socket::setKeepAlive(bool enable)
+		{
+			int optval = enable ? 1 : 0;
+			::setsockopt(sockfd_, SOL_SOCKET, SO_KEEPALIVE,
+				&optval, static_cast<socklen_t>(sizeof optval));
 		}
 		Socket::~Socket()
 		{

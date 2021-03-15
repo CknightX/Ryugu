@@ -32,6 +32,15 @@ namespace ryugu
 			{
 				return static_cast<const struct sockaddr_in6*>(static_cast<const void*>(addr));
 			}
+			int createNonblockingSocket(sa_family_t family)
+			{
+				int sockfd = ::socket(family, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
+				if (sockfd < 0)
+				{
+					LOG_ERROR("sockets::createNonblockingSocket");
+				}
+				return sockfd;
+			}
 
 			void bind(int sockfd, const struct sockaddr* addr)
 			{
@@ -70,10 +79,7 @@ namespace ryugu
 				{
 					LOG_ERROR("sockets::close");
 				}
-
-
 			}
-
 			void fillSockAddrInWithIpPort(const char* ip, uint16_t port, struct sockaddr_in* addr)
 			{
 				addr->sin_family = AF_INET;

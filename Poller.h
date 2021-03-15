@@ -15,44 +15,46 @@ Poller
 
 
 
-namespace ryugu 
+namespace ryugu
 {
-	class Epoll;
-
-
-	class Channel;
-	const int cstMaxChannels=20;
-
-	// IO复用器基类
-	class Poller 
+	namespace net
 	{
+		class Epoll;
+
+
+		class Channel;
+		const int cstMaxChannels = 20;
+
+		// IO复用器基类
+		class Poller
+		{
 		public:
 			int64_t id;
 			int lastActive;
 			Poller()
-				:lastActive(-1),id(_id++)
+				:lastActive(-1), id(_id++)
 			{
 			}
 
-			virtual void addChannel(Channel* event)=0;
-			virtual void removeChannel(Channel* event)=0;
-			virtual void updateChannel(Channel* event)=0;
+			virtual void addChannel(Channel* event) = 0;
+			virtual void removeChannel(Channel* event) = 0;
+			virtual void updateChannel(Channel* event) = 0;
 
-			virtual void loopOnce(int waitMs)=0;
+			virtual void loopOnce(int waitMs) = 0;
 
 
-			virtual ~Poller(){}
+			virtual ~Poller() {}
 
 		private:
 			static std::atomic<int64_t> _id;
 
 
-	};
+		};
 
 
-	// Linux下的Epoll模型
-	class Epoll final: public Poller  
-	{
+		// Linux下的Epoll模型
+		class Epoll final : public Poller
+		{
 		public:
 			Epoll();
 			~Epoll();
@@ -67,12 +69,13 @@ namespace ryugu
 
 			void loopOnce(int waitMs) override;
 
-	};
+		};
 
 
-	class PollerFactory
-	{
+		class PollerFactory
+		{
 		public:
-		static Poller* getPoller(){return new Epoll();}
-	};
+			static Poller* getPoller() { return new Epoll(); }
+		};
+	}
 }

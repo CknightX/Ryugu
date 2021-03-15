@@ -22,6 +22,9 @@ namespace ryugu
 			int accept(InetAddr* peeraddr);
 
 			void setTcpNoDelay(bool enable);
+			void setReuseAddr(bool enable);
+			void setReusePort(bool enable);
+			void setKeepAlive(bool enable);
 
 		private:
 			const int sockfd_;

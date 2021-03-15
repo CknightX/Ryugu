@@ -8,209 +8,212 @@
 
 namespace ryugu
 {
-    void readTimerfd(int timerfd,Timestamp now)
-    {
-        uint64_t howmany;
-        ssize_t n=::read(timerfd,&howmany,sizeof howmany);
-        LOG("TimerQueue::handleRead() %" PRIu64 " at %s",howmany,now.toString().data());
-        if (n!=sizeof(howmany))
-        {
-            LOG_ERROR("readTimerfd error");
-        }
-    }
-    // 从now到when的时间
-    timespec timeFromNow(Timestamp when)
-    {
-        int64_t microseconds=when.getTimestampByMicroSeconds()-Timestamp::getNow().getTimestampByMicroSeconds();
-        // 小于100ms按100ms
-        microseconds=microseconds<100?100:microseconds;
+	namespace net
+	{
+		void readTimerfd(int timerfd, Timestamp now)
+		{
+			uint64_t howmany;
+			ssize_t n = ::read(timerfd, &howmany, sizeof howmany);
+			LOG("TimerQueue::handleRead() %" PRIu64 " at %s", howmany, now.toString().data());
+			if (n != sizeof(howmany))
+			{
+				LOG_ERROR("readTimerfd error");
+			}
+		}
+		// 从now到when的时间
+		timespec timeFromNow(Timestamp when)
+		{
+			int64_t microseconds = when.getTimestampByMicroSeconds() - Timestamp::getNow().getTimestampByMicroSeconds();
+			// 小于100ms按100ms
+			microseconds = microseconds < 100 ? 100 : microseconds;
 
-        timespec ts;
-        ts.tv_sec=static_cast<time_t> (microseconds/Timestamp::cstMicroSecondsPerSecond);
-        ts.tv_nsec=static_cast<long>(
-            (microseconds%Timestamp::cstMicroSecondsPerSecond)*1000
-        );
-        return ts;
-    }
+			timespec ts;
+			ts.tv_sec = static_cast<time_t> (microseconds / Timestamp::cstMicroSecondsPerSecond);
+			ts.tv_nsec = static_cast<long>(
+				(microseconds % Timestamp::cstMicroSecondsPerSecond) * 1000
+				);
+			return ts;
+		}
 
 
-    TimerQueue::TimerQueue(EventLoop* _loop)
-    : loop(_loop),
-    timerfd(createTimerfd()),
-    timerfdChannel(_loop,timerfd),
-    timers(),
-    callingExpiredTimers(false)
-    {
-        timerfdChannel.setReadCB(
-            std::bind(&TimerQueue::handleRead,this));
-        
-        timerfdChannel.enableRead(true);
-    }
+		TimerQueue::TimerQueue(EventLoop* _loop)
+			: loop(_loop),
+			timerfd(createTimerfd()),
+			timerfdChannel(_loop, timerfd),
+			timers(),
+			callingExpiredTimers(false)
+		{
+			timerfdChannel.setReadCB(
+				std::bind(&TimerQueue::handleRead, this));
 
-    TimerQueue::~TimerQueue()
-    {
-        ::close(timerfd);
-    }
+			timerfdChannel.enableRead(true);
+		}
 
-    TimerId TimerQueue::addTimer(const TimerCallback& cb,Timestamp when,double interval)
-    {
-        Timer* timer=new Timer(std::move(cb),when,interval);
-        addTimerInLoop(timer);
-        return TimerId(timer,timer->getSequence());
-    }
+		TimerQueue::~TimerQueue()
+		{
+			::close(timerfd);
+		}
 
-    void TimerQueue::addTimerInLoop(Timer* timer)
-    {
-        // 先不进行本线程判断
-        
-        // 加入
-        bool earliestChanged=insert(timer);
+		TimerId TimerQueue::addTimer(const TimerCallback& cb, Timestamp when, double interval)
+		{
+			Timer* timer = new Timer(std::move(cb), when, interval);
+			addTimerInLoop(timer);
+			return TimerId(timer, timer->getSequence());
+		}
 
-        // 是第一个插入的，或者时间间隔是最小的，此时需要重置timerfd
-        if (earliestChanged)
-        {
-            resetTimerfd(timerfd,timer->getExpiration());
-        }
-    }
+		void TimerQueue::addTimerInLoop(Timer* timer)
+		{
+			// 先不进行本线程判断
 
-    void TimerQueue::resetTimerfd(int timerfd,Timestamp expiration)
-    {
-        itimerspec newValue,oldValue;
-        memset(&newValue,0,sizeof newValue);
-        memset(&oldValue,0,sizeof oldValue);
-        newValue.it_value=timeFromNow(expiration);
-        int ret= ::timerfd_settime(timerfd,0,&newValue,&oldValue);
-        if (ret)
-        {
-            LOG("timerfd_settime()");
-        }
-    }
+			// 加入
+			bool earliestChanged = insert(timer);
 
-    // timerfd触发
-    void TimerQueue::handleRead()
-    {
-        // TODO 本线程判断
+			// 是第一个插入的，或者时间间隔是最小的，此时需要重置timerfd
+			if (earliestChanged)
+			{
+				resetTimerfd(timerfd, timer->getExpiration());
+			}
+		}
 
-        Timestamp now(Timestamp::getNow());
-        // 水平触发，需要读出，防止反复触发
-        readTimerfd(timerfd,now);
+		void TimerQueue::resetTimerfd(int timerfd, Timestamp expiration)
+		{
+			itimerspec newValue, oldValue;
+			memset(&newValue, 0, sizeof newValue);
+			memset(&oldValue, 0, sizeof oldValue);
+			newValue.it_value = timeFromNow(expiration);
+			int ret = ::timerfd_settime(timerfd, 0, &newValue, &oldValue);
+			if (ret)
+			{
+				LOG("timerfd_settime()");
+			}
+		}
 
-        std::vector<Entry> expired = getExpired(now);
+		// timerfd触发
+		void TimerQueue::handleRead()
+		{
+			// TODO 本线程判断
 
-        // 正在执行到期的定时器（多线程）
-        callingExpiredTimers=true;
+			Timestamp now(Timestamp::getNow());
+			// 水平触发，需要读出，防止反复触发
+			readTimerfd(timerfd, now);
 
-        cancelingTimers.clear();
+			std::vector<Entry> expired = getExpired(now);
 
-        // 执行所有到期定时器任务
-        for (const Entry& it:expired)
-        {
-            it.second->run();
-        }
-        // 执行完毕
-        callingExpiredTimers=false;
+			// 正在执行到期的定时器（多线程）
+			callingExpiredTimers = true;
 
-        // 重置（循环定时器）
-        reset(expired,now);
-    }
-    // 获取now为止到期的timer
-    std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
-    {
-        assert(timers.size()==activeTimers.size());
+			cancelingTimers.clear();
 
-        std::vector<Entry> expired;
-        Entry sentry(now,reinterpret_cast<Timer*>(UINTPTR_MAX));
-        // 二分查找第一个>=now的定时器
-        auto end=timers.lower_bound(sentry);
-        // now最大 || now小于找到的定时器
-        assert(end==timers.end()|| now <= end->first);
+			// 执行所有到期定时器任务
+			for (const Entry& it : expired)
+			{
+				it.second->run();
+			}
+			// 执行完毕
+			callingExpiredTimers = false;
 
-        // 所有小于now的（到期）定时器
-        std::copy(timers.begin(),end,std::back_inserter(expired));
+			// 重置（循环定时器）
+			reset(expired, now);
+		}
+		// 获取now为止到期的timer
+		std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
+		{
+			assert(timers.size() == activeTimers.size());
 
-        timers.erase(timers.begin(),end);
-        // 删除所有到期定时器
-        for (const Entry& it:expired)
-        {
-            ActiveTimer timer(it.second,it.second->getSequence());
-            size_t n=activeTimers.erase(timer);
-        }
+			std::vector<Entry> expired;
+			Entry sentry(now, reinterpret_cast<Timer*>(UINTPTR_MAX));
+			// 二分查找第一个>=now的定时器
+			auto end = timers.lower_bound(sentry);
+			// now最大 || now小于找到的定时器
+			assert(end == timers.end() || now <= end->first);
 
-        assert(timers.size()==activeTimers.size());
+			// 所有小于now的（到期）定时器
+			std::copy(timers.begin(), end, std::back_inserter(expired));
 
-        return expired;
+			timers.erase(timers.begin(), end);
+			// 删除所有到期定时器
+			for (const Entry& it : expired)
+			{
+				ActiveTimer timer(it.second, it.second->getSequence());
+				size_t n = activeTimers.erase(timer);
+			}
 
-    }
+			assert(timers.size() == activeTimers.size());
 
-    void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
-    {
-        Timestamp nextExpire;
+			return expired;
 
-        for (const Entry& it:expired)
-        {
-            ActiveTimer timer(it.second,it.second->getSequence());
-            // 如果是重复定时器，并且不在已经取消的列表里
-            if (it.second->isRepeat()&&cancelingTimers.find(timer)==cancelingTimers.end())
-            {
-                // 重启定时器
-                it.second->restart(now);
-                // 插入定时器队列
-                insert(it.second);
-            }
-            else
-            {
-                delete it.second;
-            }
-        }
+		}
 
-        if (!timers.empty())
-        {
-            // 新的timerfd触发时间是所有计时器中离现在最近的时间
-            nextExpire=timers.begin()->second->getExpiration();
-            if (nextExpire.isValid())
-            {
-                resetTimerfd(timerfd,nextExpire);
-            }
-        }
+		void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
+		{
+			Timestamp nextExpire;
 
-    }
+			for (const Entry& it : expired)
+			{
+				ActiveTimer timer(it.second, it.second->getSequence());
+				// 如果是重复定时器，并且不在已经取消的列表里
+				if (it.second->isRepeat() && cancelingTimers.find(timer) == cancelingTimers.end())
+				{
+					// 重启定时器
+					it.second->restart(now);
+					// 插入定时器队列
+					insert(it.second);
+				}
+				else
+				{
+					delete it.second;
+				}
+			}
 
-    bool TimerQueue::insert(Timer* timer)
-    {
-        // TODO 判断是不是在当前线程
+			if (!timers.empty())
+			{
+				// 新的timerfd触发时间是所有计时器中离现在最近的时间
+				nextExpire = timers.begin()->second->getExpiration();
+				if (nextExpire.isValid())
+				{
+					resetTimerfd(timerfd, nextExpire);
+				}
+			}
 
-        // 全部timer都在活跃状态
-        assert(timers.size()==activeTimers.size());
+		}
 
-        bool earliestChanged=false;
-        Timestamp when = timer->getExpiration();
-        auto iter=timers.begin();
-        // 待插入的timer是否是最早的一个
-        if (iter == timers.end() || when < iter->first)
-        {
-            earliestChanged=true;
-        }
+		bool TimerQueue::insert(Timer* timer)
+		{
+			// TODO 判断是不是在当前线程
 
-        {
-        auto result=timers.insert(Entry(when,timer));
-        assert(result.second);
-        }
-        {
-        auto result=activeTimers.insert(ActiveTimer(timer,timer->getSequence()));
-        assert(result.second);
-        }
-        return earliestChanged;
+			// 全部timer都在活跃状态
+			assert(timers.size() == activeTimers.size());
 
-    }
+			bool earliestChanged = false;
+			Timestamp when = timer->getExpiration();
+			auto iter = timers.begin();
+			// 待插入的timer是否是最早的一个
+			if (iter == timers.end() || when < iter->first)
+			{
+				earliestChanged = true;
+			}
 
-    int TimerQueue::createTimerfd()
-    {
-        int timerfd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
-        if (timerfd < 0)
-        {
-            LOG_ERROR("Failed to create timerfd");
-        }
-        return timerfd;
-    }
+			{
+				auto result = timers.insert(Entry(when, timer));
+				assert(result.second);
+			}
+			{
+				auto result = activeTimers.insert(ActiveTimer(timer, timer->getSequence()));
+				assert(result.second);
+			}
+			return earliestChanged;
 
-    } // namespace ryugu
+		}
+
+		int TimerQueue::createTimerfd()
+		{
+			int timerfd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
+			if (timerfd < 0)
+			{
+				LOG_ERROR("Failed to create timerfd");
+			}
+			return timerfd;
+		}
+
+	} // namespace ryugu
+}

@@ -7,25 +7,27 @@
 
 namespace ryugu
 {
-    class EventLoop;
+	namespace net
+	{
+		class EventLoop;
+
+		class EventLoopThread : noncopyable
+		{
+		public:
+			EventLoopThread(const std::string& name);
+			~EventLoopThread();
+
+			EventLoop* start();
+
+		private:
+			void threadFunc();
+			EventLoop* handler;
+			// 延迟启动
+			std::shared_ptr<std::thread> threadPtr;
+			std::mutex mutex;
+			std::condition_variable condition;
 
 
-    class EventLoopThread : noncopyable
-    {
-        public:
-        EventLoopThread(const std::string& name);
-        ~EventLoopThread();
-
-        EventLoop* start();
-
-        private:
-        void threadFunc();
-        EventLoop* handler;
-        // 延迟启动
-        std::shared_ptr<std::thread> threadPtr;
-        std::mutex mutex;
-        std::condition_variable condition;
-
-        
-    };
+		};
+	}
 }

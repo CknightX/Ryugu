@@ -10,7 +10,7 @@ namespace ryugu
 		class InetAddr
 		{
 		public:
-			explicit InetAddr(uint16_t port, bool lookbackOnly = false, bool ipv6 = false);
+			explicit InetAddr(uint16_t port=0, bool lookbackOnly = false, bool ipv6 = false);
 			InetAddr(std::string ip, uint16_t port, bool ipv6 = false);
 
 			explicit InetAddr(const struct sockaddr_in& addr)

@@ -11,52 +11,55 @@
 
 namespace ryugu
 {
-class EventLoop;
+	namespace net
+	{
+		class EventLoop;
 
-class TimerQueue : noncopyable
-{
-    public:
-    TimerQueue(EventLoop* _loop);
-    ~TimerQueue();
+		class TimerQueue : noncopyable
+		{
+		public:
+			TimerQueue(EventLoop* _loop);
+			~TimerQueue();
 
-    TimerId addTimer(const TimerCallback& cb,Timestamp when,double interval);
+			TimerId addTimer(const TimerCallback& cb, Timestamp when, double interval);
 
-    void cancel(TimerId timerId);
+			void cancel(TimerId timerId);
 
-    private:
-    using Entry=std::pair<Timestamp,Timer*>;
-    using TimerList=std::set<Entry>;
-    using ActiveTimer=std::pair<Timer*,int64_t>;
-    using ActiveTimerSet=std::set<ActiveTimer>;
+		private:
+			using Entry = std::pair<Timestamp, Timer*>;
+			using TimerList = std::set<Entry>;
+			using ActiveTimer = std::pair<Timer*, int64_t>;
+			using ActiveTimerSet = std::set<ActiveTimer>;
 
-    void addTimerInLoop(Timer* timer);
-    void cancelInLoop(TimerId timerId);
-    // timerfd可读时的回调函数, 检测所有到期Timer
-    void handleRead();
-    
-    std::vector<Entry> getExpired(Timestamp now);
-    void reset(const std::vector<Entry>& expired,Timestamp now);
+			void addTimerInLoop(Timer* timer);
+			void cancelInLoop(TimerId timerId);
+			// timerfd可读时的回调函数, 检测所有到期Timer
+			void handleRead();
 
-    bool insert(Timer* timer);
+			std::vector<Entry> getExpired(Timestamp now);
+			void reset(const std::vector<Entry>& expired, Timestamp now);
 
-    void resetTimerfd(int timerfd,Timestamp expiration);
+			bool insert(Timer* timer);
 
-
-    static int createTimerfd();
-
-    EventLoop* loop;
-    const int timerfd;
-    Channel timerfdChannel;
-
-    // 所有定时器=活动+cancel
-    TimerList timers;
-
-    // 活动的定时器
-    ActiveTimerSet activeTimers;
-    bool callingExpiredTimers;
-    ActiveTimerSet cancelingTimers;
-
-};
+			void resetTimerfd(int timerfd, Timestamp expiration);
 
 
+			static int createTimerfd();
+
+			EventLoop* loop;
+			const int timerfd;
+			Channel timerfdChannel;
+
+			// 所有定时器=活动+cancel
+			TimerList timers;
+
+			// 活动的定时器
+			ActiveTimerSet activeTimers;
+			bool callingExpiredTimers;
+			ActiveTimerSet cancelingTimers;
+
+		};
+
+
+	}
 }
