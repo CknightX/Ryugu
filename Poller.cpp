@@ -8,11 +8,9 @@
 namespace ryugu 
 {
 
-Epoll *globalEpoll;
 
 Epoll::Epoll()
 {
-	globalEpoll = this;
 	// 用epoll_create1替换epoll_create
 	// EPOLL_CLOEXEC 代表epoll fd 具有执行后关闭的特性
 	epollFd = epoll_create1(0);

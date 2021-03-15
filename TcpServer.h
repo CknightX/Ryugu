@@ -44,6 +44,7 @@ namespace ryugu
         private:
         EventLoop* loop_;
         // fd->conn
+		// 始终持有一个引用计数
         std::unordered_map<int,TcpConnPtr> connMap;
 
         std::unique_ptr<Channel> listenChannel;
