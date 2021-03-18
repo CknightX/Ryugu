@@ -49,6 +49,10 @@ namespace ryugu
 			::setsockopt(sockfd_, SOL_SOCKET, SO_KEEPALIVE,
 				&optval, static_cast<socklen_t>(sizeof optval));
 		}
+		void Socket::shutdownWrite()
+		{
+			sockets::shutdownWrite(sockfd_);
+		}
 		Socket::~Socket()
 		{
 			sockets::close(sockfd_);

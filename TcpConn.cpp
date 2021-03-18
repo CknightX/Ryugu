@@ -1,13 +1,15 @@
+#include <assert.h>
 #include "TcpConn.h"
 #include "Channel.h"
 #include "Debug.h"
+#include "EventLoop.h"
 namespace ryugu
 {
 	namespace net
 	{
 		TcpConn::TcpConn(EventLoop* loop, int sockfd, net::InetAddr localAddr, net::InetAddr peerAddr)
 			:loop_(loop),
-			state_(Invalid),
+			state_(Connecting),
 			channel_(new Channel(loop, sockfd)),
 			socket_(new net::Socket(sockfd)),
 			localAddr_(localAddr),
@@ -29,7 +31,6 @@ namespace ryugu
 			return channel_->getFd();
 		}
 
-		// 暂时先不管TCP状态..
 		void TcpConn::handleRead()
 		{
 			// 将数据读到readBuf中
@@ -38,14 +39,15 @@ namespace ryugu
 			{
 				readCb(shared_from_this());
 			}
-
 		}
 		void TcpConn::connectEstablished()
 		{
-			setState(Connecting);
+			assert(state_ == Connecting);
 			channel_->tie(shared_from_this());
-			// 线程不安全，所以要放到io线程执行
+			// 线程不安全，所以本函数要放到io线程执行
 			channel_->enableRead(true);
+
+			setState(Connected);
 		}
 		void TcpConn::handleWrite()
 		{
@@ -130,9 +132,7 @@ namespace ryugu
 				{
 					// 被中断打断
 					if (errno == EINTR)
-
 						continue;
-
 					// LT模式读取完毕
 					if (errno == EAGAIN)
 						break;
@@ -140,7 +140,6 @@ namespace ryugu
 				// 当read返回值为0时说明对端断开连接
 				else if (n == 0)
 				{
-					// 关闭tcp连接，释放channel
 					LOG("lost");
 					handleClose();
 					break;
@@ -153,15 +152,64 @@ namespace ryugu
 		}
 		void TcpConn::handleClose()
 		{
-			setState(Disconnected);
+			loop_->assertInLoopThread();
+			assert(state_ == Connected || state_ == DisConnecting);
 			channel_->enableAll(false);
 			TcpConnPtr guardThis(shared_from_this());
 			//connCb(guardThis);
+			// call TcpServer::removeConnection
 			closeCb(guardThis);
+			setState(DisConnected);
 		}
+		// called by TcpServer::removeConnection
 		void TcpConn::connectDestroyed()
 		{
+			loop_->assertInLoopThread();
+			// 这里与上面重复，因为有时可以不经由handleClose()直接调用connectDestroyed()
+			if (state_ == Connected)
+			{
+				setState(DisConnected);
+				channel_->enableAll(false);
+			}
 			channel_->remove();
+		}
+		void TcpConn::shutdown()
+		{
+			if (state_ == Connected)
+			{
+				setState(DisConnecting);
+				loop_->runInLoop([this] {
+					shutdownInLoop();
+				});
+			}
+		}
+		void TcpConn::forceClose()
+		{
+			// 连接中或者由shutdown引起的半关闭状态
+			if (state_ == Connected || state_ == DisConnecting)
+			{
+				setState(DisConnecting);
+				auto guardThis = shared_from_this();
+				loop_->queueInLoop([guardThis] {
+					guardThis->forceCloseInLoop();
+				});
+			}
+		}
+		void TcpConn::forceCloseInLoop()
+		{
+			loop_->assertInLoopThread();
+			if (state_ == Connected || state_ == DisConnecting)
+			{
+				// 如同read返回0
+				handleClose();
+			}
+		}
+		void TcpConn::shutdownInLoop()
+		{
+			loop_->assertInLoopThread();
+			// TODO : judge channel is writing ?
+			// 只关闭写端，要求对端read==0时会断开
+			socket_->shutdownWrite();
 		}
 
 

@@ -31,12 +31,10 @@ namespace ryugu
 			// Tcp 连接的状态
 			enum State
 			{
-				Invalid = 1,
-				Handshaking,  //握手
-				Connecting,    // 连接
-				Disconnected,
-				Closed,
-				Failed,
+				DisConnected,
+				Connecting,
+				Connected,
+				DisConnecting
 			};
 
 			EventLoop* loop_;
@@ -61,6 +59,8 @@ namespace ryugu
 			void handleClose();
 
 			void setState(State _state);
+			bool isConnected() const { return state_ == Connected; }
+			bool isDisconnected() const { return state_ == DisConnected; }
 
 			// 设置读写回调函数
 			void setReadCb(const TcpCallBack& cb) { readCb = cb; }
@@ -71,6 +71,10 @@ namespace ryugu
 			// 发起连接(作为客户端时)
 			void connect(EventLoop* _loop, const std::string& host, unsigned short port, int timeout, const std::string& localip);
 			void reconnect();
+			// 主动断开，关闭自己的写端
+			void shutdown();
+			// 强制断开连接
+			void forceClose();
 
 
 			// 发送数据
@@ -89,6 +93,8 @@ namespace ryugu
 			int getFd()const;
 
 
+			void shutdownInLoop();
+			void forceCloseInLoop();
 
 
 		private:

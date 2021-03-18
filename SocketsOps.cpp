@@ -80,6 +80,13 @@ namespace ryugu
 					LOG_ERROR("sockets::close");
 				}
 			}
+			void shutdownWrite(int sockfd)
+			{
+				if (::shutdown(sockfd, SHUT_WR) < 0)
+				{
+					LOG_ERROR("sockets::shutdownWrite");
+				}
+			}
 			void fillSockAddrInWithIpPort(const char* ip, uint16_t port, struct sockaddr_in* addr)
 			{
 				addr->sin_family = AF_INET;

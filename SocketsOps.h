@@ -24,6 +24,7 @@ namespace ryugu
 			void listen(int sockfd);
 			int accept(int sockfd, struct sockaddr* addr);
 			void close(int sockfd);
+			void shutdownWrite(int sockfd);
 
 			inline void memZero(void* p, size_t n) { memset(p, 0, n); }
 

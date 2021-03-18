@@ -26,6 +26,8 @@ namespace ryugu
 			void setReusePort(bool enable);
 			void setKeepAlive(bool enable);
 
+			void shutdownWrite();
+
 		private:
 			const int sockfd_;
 		};
