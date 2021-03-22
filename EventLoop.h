@@ -67,6 +67,7 @@ namespace ryugu
 			std::unique_ptr<Channel> wakeupChannel;
 			void handleEventfdRead();
 
+			void abortNotInLoopThread();
 
 
 

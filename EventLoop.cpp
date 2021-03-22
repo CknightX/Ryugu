@@ -79,7 +79,14 @@ namespace ryugu
 		}
 		void EventLoop::assertInLoopThread()
 		{
-			// TODO
+			if (!isInLoopThread())
+			{
+				abortNotInLoopThread();
+			}
+		}
+		void EventLoop::abortNotInLoopThread()
+		{
+			LOG_ERROR("EventLoop::abortNotInLoopThread");
 		}
 
 		void EventLoop::queueInLoop(Functor cb)
