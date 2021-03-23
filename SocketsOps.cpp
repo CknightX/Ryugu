@@ -73,6 +73,14 @@ namespace ryugu
 				auto addr_len = static_cast<socklen_t> (sizeof(struct sockaddr_in));
 				return ::connect(sockfd, addr, addr_len);
 			}
+			ssize_t read(int sockfd, void* buf, size_t count)
+			{
+				return ::read(sockfd, buf, count);
+			}
+			ssize_t write(int sockfd, const void* buf, size_t count)
+			{
+				return ::write(sockfd, buf, count);
+			}
 			void close(int sockfd)
 			{
 				if (::close(sockfd) < 0)

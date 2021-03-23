@@ -81,6 +81,8 @@ namespace ryugu
 			void send(const std::string& str);
 			void send(const char* buf, size_t len);
 			void send(const char* s) { send(s, strlen(s)); }
+			void sendInLoop(const void* data, size_t len);
+			void sendInLoop(const std::string& message);
 
 			// 连接建立时执行
 			void connectEstablished();

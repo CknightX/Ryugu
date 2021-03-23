@@ -26,6 +26,9 @@ namespace ryugu
 			void close(int sockfd);
 			void shutdownWrite(int sockfd);
 
+			ssize_t read(int sockfd, void* buf, size_t count);
+			ssize_t write(int sockfd, const void* buf, size_t count);
+
 			inline void memZero(void* p, size_t n) { memset(p, 0, n); }
 
 			// cast

@@ -30,14 +30,22 @@ namespace ryugu
 		{
 			return channel_->getFd();
 		}
-
 		void TcpConn::handleRead()
 		{
+			loop_->assertInLoopThread();
 			// 将数据读到readBuf中
-			fillReadBuf();
-			if (readCb)
+			ssize_t n = readBuf.writeInFromFd(channel_->getFd());
+			if (n > 0 && readCb)
 			{
 				readCb(shared_from_this());
+			}
+			else if (n == 0)
+			{
+				handleClose();
+			}
+			else
+			{
+				LOG_ERROR("TcpConn::handleRead");
 			}
 		}
 		void TcpConn::connectEstablished()
@@ -51,105 +59,94 @@ namespace ryugu
 		}
 		void TcpConn::handleWrite()
 		{
-			// 写writeBuf里面的内容
-			ssize_t sended = _write(writeBuf.getData(), writeBuf.size());
-			writeBuf.consume(sended);
-			// 写完了
-			if (writeBuf.empty())
+			loop_->assertInLoopThread();
+			if (channel_->isWriteEnabled())
 			{
-				// 用户自定义回调
-				if (writeCb)
-					writeCb(shared_from_this());
-				// 关闭可写事件监听
-				if (channel_->isWriteEnabled())
-					channel_->enableWrite(false);
+				assert(!writeBuf.empty());
+				// 写writeBuf里面的内容
+				ssize_t sended = writeBuf.readOutToFd(channel_->getFd());
+				if (sended > 0)
+				{
+					// 写完了
+					if (writeBuf.empty())
+					{
+						// 用户自定义回调
+						if (writeCb)
+							writeCb(shared_from_this());
+						// 关闭可写事件监听
+						if (channel_->isWriteEnabled())
+							channel_->enableWrite(false);
+					}
+				}
+				else
+				{
+					LOG_ERROR("TcpConn::handleWrite");
+				}
 			}
-
+			else
+			{
+				LOG("Connection fd=%d is down, no more writing",channel_->getFd());
+			}
 		}
 		void TcpConn::send(const char* buf, size_t len)
 		{
-			// 先尽可能发送
-			auto sended = _write(buf, len);
-
-			// 没发完,而且此时写缓冲区已满,将没发完的数据存入buffer中
-			if (sended < len)
+			if (state_ == Connected)
 			{
-				// 剩下内容放到writeBuf中
-				writeBuf.writeIn(buf + sended, len - sended);
-				// 由epoll进行剩下的工作
-				channel_->enableWrite(true);
+				// why not use shared_from_this() ?
+				loop_->runInLoop([this,len,buf] {
+					sendInLoop(buf, len);
+				});
 			}
 		}
 		void TcpConn::send(const std::string& str)
 		{
-			send(str.c_str(), str.size());
+			send(str.data(), str.size());
+		}
+		void TcpConn::sendInLoop(const std::string& message)
+		{
+			sendInLoop(message.data(), message.size());
+		}
+		void TcpConn::sendInLoop(const void* data, size_t len)
+		{
+			loop_->assertInLoopThread();
+			ssize_t sended = 0;
+			// 确保写缓冲区没有数据，才能直接写。否则要先把写缓冲区的内容写完才能写新数据，否则会产生乱序
+			if (!channel_->isWriteEnabled() && writeBuf.empty())
+			{
+				sended = sockets::write(channel_->getFd(),data, len);
+				if (sended >= 0)
+				{
+					// 没写完
+					if (static_cast<size_t>(sended) < len)
+					{
+						// 这里没有采取循环写，直到出现EAGAIN。因为如果一次没写完，第二次写几乎肯定会出现EAGAIN。
+						// 把剩下没写完的直接丢给handleWrite，多数情况下可以减少一次系统调用 P319
+					}
+				}
+				else
+				{
+					sended = 0;
+					if (errno != EWOULDBLOCK) // EWOULDBLOCK==EAGAIN
+					{
+						LOG_ERROR("TcpConn::sendInLoop");
+					}
+				}
+			}
+			assert(sended >= 0);
+			if (static_cast<size_t>(sended) < len)
+			{
+				writeBuf.writeIn(static_cast<const char*>(data) + sended, len - sended);
+				if (!channel_->isWriteEnabled())
+				{
+					channel_->enableWrite(true);
+				}
+			}
 		}
 		std::string TcpConn::getInput()
 		{
 			return readBuf.readOutAsString(readBuf.size());
 		}
 
-		size_t TcpConn::_write(const char* buf, size_t len)
-		{
-			size_t sended = 0;
-			while (len > sended)
-			{
-				ssize_t nbytes = ::write(channel_->getFd(), buf + sended, len - sended);
-				if (nbytes > 0)
-				{
-					sended += nbytes;
-					continue;
-				}
-				else if (nbytes < 0)
-				{
-					if (errno == EINTR)
-						continue;
-					// 内核写缓冲区满
-					else if (errno == EAGAIN)
-					{
-
-						// if (!channel->isWriteEnabled())
-						//     channel->enableWrite(true);
-						break;
-					}
-					else
-					{
-						LOG_ERROR("write error,fd=%d", channel_->getFd());
-					}
-
-				}
-			}
-			return sended;
-		}
-		void TcpConn::fillReadBuf()
-		{
-			static char _buf[256];
-			int n;
-			while (1)
-			{
-				n = ::read(channel_->getFd(), _buf, 256);
-				if (n < 0)
-				{
-					// 被中断打断
-					if (errno == EINTR)
-						continue;
-					// LT模式读取完毕
-					if (errno == EAGAIN)
-						break;
-				}
-				// 当read返回值为0时说明对端断开连接
-				else if (n == 0)
-				{
-					LOG("lost");
-					handleClose();
-					break;
-				}
-				else
-				{
-					readBuf.writeIn(_buf, n);
-				}
-			}
-		}
 		void TcpConn::handleClose()
 		{
 			loop_->assertInLoopThread();
