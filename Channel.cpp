@@ -80,6 +80,35 @@ namespace ryugu
 			tie_ = obj;
 			tied_ = true;
 		}
-
+		void Channel::handleRead()
+		{
+			if (tied_)
+			{
+				auto guard = tie_.lock();
+				if (guard)
+				{
+					readCallback();
+				}
+			}
+			else
+			{
+				readCallback();
+			}
+		}
+		void Channel::handleWrite()
+		{
+			if (tied_)
+			{
+				auto guard = tie_.lock();
+				if (guard)
+				{
+					writeCallback();
+				}
+			}
+			else
+			{
+				writeCallback();
+			}
+		}
 	}
 }

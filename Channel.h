@@ -56,8 +56,8 @@ namespace ryugu
 			bool isReadEnabled() { return events & cstReadEvent; }
 			bool isWriteEnabled() { return events & cstWriteEvent; }
 
-			void handleRead() { readCallback(); }
-			void handleWrite() { writeCallback(); }
+			void handleRead();
+			void handleWrite();
 
 			void tie(const std::shared_ptr<void>& obj);
 		private:

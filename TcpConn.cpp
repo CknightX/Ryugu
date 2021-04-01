@@ -201,6 +201,11 @@ namespace ryugu
 				handleClose();
 			}
 		}
+		// 1. 关闭写端
+		// 2. 另一方read==0
+		// 3. 对方关闭连接close
+		// 4. read==0
+		// 5. 我方close
 		void TcpConn::shutdownInLoop()
 		{
 			loop_->assertInLoopThread();
