@@ -8,7 +8,7 @@ namespace ryugu
 	namespace net
 	{
 		Channel::Channel(EventLoop* _loop, int _fd)
-			:loop(_loop), fd(_fd), events(0)
+			:loop(_loop), fd(_fd), events(0),tied_(false)
 		{
 			static std::atomic<int64_t> _id(0);
 			id = ++_id;

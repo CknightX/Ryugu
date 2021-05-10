@@ -56,14 +56,18 @@ namespace ryugu
 
 			std::thread::id threadId;
 			bool isStop;
+			// 定时器队列
 			std::unique_ptr<TimerQueue> timerQueue;
 
 			std::mutex mutex;
+
 			bool callingPendingFunctors;
 			void doPendingFunctors();
 			std::vector<Functor> pendingFunctors;
+
 			void wakeup();
 			int wakeupfd;
+
 			std::unique_ptr<Channel> wakeupChannel;
 			void handleEventfdRead();
 

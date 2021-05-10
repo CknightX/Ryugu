@@ -29,7 +29,10 @@ namespace ryugu
 		}
 		EventLoop::~EventLoop()
 		{
-
+			LOG("EventLoop destruct");
+			wakeupChannel->enableAll(false);
+			wakeupChannel->remove();
+			::close(wakeupfd);
 		}
 
 		void EventLoop::loopOnce(int waitMs)

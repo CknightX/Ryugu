@@ -27,7 +27,16 @@ namespace ryugu
 		}
 		TcpServer::~TcpServer()
 		{
-
+			// 主线程中
+			loop_->assertInLoopThread();
+			LOG("TcpServer destruct");
+			for (auto& item : connMap_)
+			{
+				auto connPtr = item.second;
+				item.second->getLoop()->runInLoop([connPtr] {
+					connPtr->connectDestroyed();
+				});
+			}
 		}
 		void TcpServer::newConnection(int sockfd, const InetAddr& peerAddr)
 		{
@@ -60,7 +69,6 @@ namespace ryugu
 			});
 
 		}
-
 		void TcpServer::setThreadNum(int num)
 		{
 			threadPool_->setThreadNum(num);

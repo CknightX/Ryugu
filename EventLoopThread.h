@@ -21,13 +21,12 @@ namespace ryugu
 
 		private:
 			void threadFunc();
-			EventLoop* handler;
+			EventLoop* loop;
 			// 延迟启动
-			std::shared_ptr<std::thread> threadPtr;
+			std::unique_ptr<std::thread> threadPtr;
 			std::mutex mutex;
 			std::condition_variable condition;
-
-
+			bool exiting;
 		};
 	}
 }
