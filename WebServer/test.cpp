@@ -35,7 +35,15 @@ void test1()
 		{
 			loop.stop();
 		}
-		conn->send(mes);
+		string header = "";
+		header += "HTTP/1.1 200 OK\r\n";
+		header += "Content-type: text/html\r\n";
+		header += "Content-length: 1\r\n";
+		header += "Connection: keep-alive\r\n";
+		header += "\r\n";
+		header += "c";
+		conn->send(header);
+		//conn->send(mes);
 	});
 	server.setThreadNum(5);
     server.start();

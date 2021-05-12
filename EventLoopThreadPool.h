@@ -3,6 +3,7 @@
 #include <vector>
 #include "Utils.h"
 #include "Callbacks.h"
+#include "Noncopyable.h"
 
 namespace ryugu
 {

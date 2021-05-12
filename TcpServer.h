@@ -12,6 +12,7 @@ TcpServer
 #include "Callbacks.h"
 #include "Utils.h"
 #include "Net.h"
+#include "Noncopyable.h"
 namespace ryugu
 {
 	namespace net
@@ -27,10 +28,11 @@ namespace ryugu
 		class TcpServer : noncopyable
 		{
 		public:
-			TcpServer(EventLoop* _loop, const net::InetAddr&, bool);
+			TcpServer(EventLoop* _loop, const InetAddr&, bool);
 			~TcpServer();
 			void setThreadNum(int num);
 			void start();
+			EventLoop* getLoop() const { return loop_; }
 
 		public:
 

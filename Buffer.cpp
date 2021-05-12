@@ -1,7 +1,8 @@
 #include<unistd.h>
-#include<iostream>
 #include <algorithm>
 #include <iterator>
+#include <cstring>
+#include <cassert>
 #include "Buffer.h"
 #include "Debug.h"
 #include "SocketsOps.h"
@@ -16,7 +17,19 @@ namespace ryugu
 		Buffer::~Buffer()
 		{
 		}
-
+		void Buffer::append(const char* str)
+		{
+			auto len = strlen(str);
+			writeIn(str, len);
+		}
+		void Buffer::append(const char* str, size_t len)
+		{
+			writeIn(str, len);
+		}
+		void Buffer::append(const std::string& str)
+		{
+			writeIn(str.c_str(), str.size());
+		}
 		void Buffer::writeIn(const char* str, size_t len)
 		{
 			auto remain = buf.capacity() - buf.size();
@@ -33,7 +46,6 @@ namespace ryugu
 			std::copy(str, str + len, insert_iter);
 			ed += len;
 		}
-
 		void Buffer::writeIn(const std::string& str)
 		{
 			writeIn(str.data(), str.size());
@@ -79,16 +91,27 @@ namespace ryugu
 			// 实际读出的长度
 			auto rlen = std::min(len, size());
 			std::copy(buf.begin() + bg, buf.begin() + bg + rlen, _buf);
-			bg += rlen;
+			consume(rlen);
 		}
 		std::string Buffer::readOutAsString(size_t len)
 		{
 			auto rlen = std::min(len, size());
 			std::string tmp(buf.begin() + bg, buf.begin() + bg + rlen);
-			bg += rlen;
+			consume(rlen);
 			return tmp;
 		}
-
+		const char* Buffer::find(const std::string& str) const
+		{
+			const char* res = nullptr;
+			res = std::search(getPeek(), getEnd(),str.cbegin(),str.cend());
+			return res;
+		}
+		void Buffer::consumeUntil(const char* pos)
+		{
+			assert(getPeek() <= pos);
+			assert(pos <= getEnd());
+			consume(pos - getPeek());
+		}
 	}
 
 } // namespace ryugu

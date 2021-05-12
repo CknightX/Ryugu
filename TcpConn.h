@@ -13,6 +13,7 @@
 #include "Callbacks.h"
 #include "InetAddr.h"
 #include "Socket.h"
+#include "Noncopyable.h"
 
 
 
@@ -68,6 +69,13 @@ namespace ryugu
 			void setConnCb(const TcpCallBack& cb) { connCb = cb; }
 			void setCloseCb(const TcpCallBack& cb) { closeCb = cb; }
 
+			// 上下文
+			void setContext(std::shared_ptr<void> context) { context_ = context; }
+			std::shared_ptr<void> getContext() const { return context_; }
+
+			Buffer* getBuffer() { return &readBuf; }
+
+
 			// 发起连接(作为客户端时)
 			void connect(EventLoop* _loop, const std::string& host, unsigned short port, int timeout, const std::string& localip);
 			void reconnect();
@@ -103,7 +111,9 @@ namespace ryugu
 			// 尝试尽可能发送，返回最终发送的字节数
 			size_t _write(const char* buf, size_t len);
 			// 尽可能从读取到readBuf中
-			void fillReadBuf();
+			//void fillReadBuf();
+			// 保存每个connection的上下文
+			std::shared_ptr<void> context_;
 		};
 
 	} // namespace ryugu

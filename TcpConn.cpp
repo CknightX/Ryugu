@@ -13,7 +13,8 @@ namespace ryugu
 			channel_(new Channel(loop, sockfd)),
 			socket_(new net::Socket(sockfd)),
 			localAddr_(localAddr),
-			peerAddr_(peerAddr)
+			peerAddr_(peerAddr),
+			context_(nullptr)
 		{
 			channel_->setReadCB([this] {this->handleRead(); });
 			channel_->setWriteCB([this] {this->handleWrite(); });
@@ -52,10 +53,10 @@ namespace ryugu
 		{
 			assert(state_ == Connecting);
 			channel_->tie(shared_from_this());
-			// 线程不安全，所以本函数要放到io线程执行
+			// 该语句导致本函数线程不安全，所以本函数要放到io线程执行
 			channel_->enableRead(true);
-
 			setState(Connected);
+			connCb(shared_from_this());
 		}
 		void TcpConn::handleWrite()
 		{

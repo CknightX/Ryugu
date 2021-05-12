@@ -2,6 +2,7 @@
 #include "Utils.h"
 #include "Timestamp.h"
 #include "Callbacks.h"
+#include "Noncopyable.h"
 #include <functional>
 #include <atomic>
 

@@ -1,7 +1,10 @@
-*.o
-Test
-test
-echo
-.vscode/
-.vs/
-
+ 
+#exclude all file with a suffix
+*.*
+#exclude all file without suffix
+*
+#except dir
+!*/
+#except batch file
+!*.cpp
+!*.h
