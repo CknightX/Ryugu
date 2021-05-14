@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Copyable.h"
-#include "../Timestamp.h"
+#include "Ryugu/Copyable.h"
+#include "Ryugu/Timestamp.h"
 
 #include <map>
 #include <cassert>

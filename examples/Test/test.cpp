@@ -1,9 +1,9 @@
-#include "RyuguNet.h"
-#include "Debug.h"
-#include "EventLoopThread.h"
-#include "Net.h"
-#include "InetAddr.h"
-#include "TcpConn.h"
+#include "Ryugu/RyuguNet.h"
+#include "Ryugu/Debug.h"
+#include "Ryugu/EventLoopThread.h"
+#include "Ryugu/Net.h"
+#include "Ryugu/InetAddr.h"
+#include "Ryugu/TcpConn.h"
 #include<iostream>
 #include <string>
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Copyable.h"
-#include "../Buffer.h"
+#include "Ryugu/Copyable.h"
+#include "Ryugu/Buffer.h"
 #include <unordered_map>
 #include <string>
 

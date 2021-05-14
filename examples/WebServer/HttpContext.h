@@ -1,7 +1,7 @@
 #pragma once
-#include "../Copyable.h"
-#include "../Buffer.h"
-#include "../Debug.h"
+#include "Ryugu/Copyable.h"
+#include "Ryugu/Buffer.h"
+#include "Ryugu/Debug.h"
 #include "HttpRequest.h"
 #include <algorithm>
 

@@ -8,3 +8,6 @@
 #except batch file
 !*.cpp
 !*.h
+!xmake.lua
+!.gitignore
+!README.md

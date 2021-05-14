@@ -1,9 +1,9 @@
 #include "WebServer.h"
 #include "HttpRequest.h"
 #include "HttpContext.h"
-#include "../EventLoop.h"
-#include "../InetAddr.h"
-#include "../Timestamp.h"
+#include "Ryugu/EventLoop.h"
+#include "Ryugu/InetAddr.h"
+#include "Ryugu/Timestamp.h"
 
 #include <iostream>
 #include <unordered_map>
@@ -11,11 +11,10 @@
 using std::string;
 
 extern char favicon[555];
-bool benchmark = false;
+bool benchmark = true;
 
 void onRequest(const HttpRequest& req, HttpResponse* resp)
 {
-	LOG("WTF");
 	if (!benchmark)
 	{
 		const std::unordered_map<string, string>& headers = req.getHeaders();
