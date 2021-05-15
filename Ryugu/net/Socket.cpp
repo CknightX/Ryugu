@@ -21,7 +21,7 @@ namespace ryugu
 		int Socket::accept(InetAddr* peeraddr)
 		{
 			struct sockaddr_in addr;
-			memZero(&addr, sizeof addr);
+			base::memZero(&addr, sizeof addr);
 			int connfd = sockets::accept(sockfd_, reinterpret_cast<sockaddr*>(&addr));
 			if (connfd >= 0)
 			{

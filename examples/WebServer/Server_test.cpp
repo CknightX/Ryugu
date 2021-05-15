@@ -2,9 +2,12 @@
 #include <iostream>
 #include <unordered_map>
 #include <string>
+#include <unistd.h>
 #include "Ryugu/net/EventLoop.h"
 #include "Ryugu/net/InetAddr.h"
 #include "Ryugu/base/Timestamp.h"
+#include "Ryugu/base/Utils.h"
+#include "Ryugu/base/log/Logging.h"
 #include "WebServer.h"
 #include "HttpRequest.h"
 #include "HttpContext.h"
@@ -13,8 +16,11 @@ using std::string;
 extern char favicon[555];
 bool benchmark = true;
 
+std::unordered_map<string, string> mime;
+
 void onRequest(const HttpRequest& req, HttpResponse* resp)
 {
+	ryugu::LOG_INFO << req.getPath();
 	if (!benchmark)
 	{
 		const std::unordered_map<string, string>& headers = req.getHeaders();
@@ -29,37 +35,66 @@ void onRequest(const HttpRequest& req, HttpResponse* resp)
 		resp->setStatusCode(HttpResponse::StatusCode::k200Ok);
 		resp->setStatusMessage("OK");
 		resp->setContentType("text/html");
-		resp->addHeader("Server", "Muduo");
+		resp->addHeader("Server", "Ryugu");
 		string now = ryugu::base::Timestamp::getNow().toPrettyString();
 		resp->setBody("<html><head><title>This is title</title></head>"
 			"<body><h1>Hello</h1>Now is " + now +
 			"</body></html>");
-	}
-	else if (req.getPath() == "/favicon.ico")
-	{
-		resp->setStatusCode(HttpResponse::StatusCode::k200Ok);
-		resp->setStatusMessage("OK");
-		resp->setContentType("image/png");
-		resp->setBody(string(favicon, sizeof favicon));
 	}
 	else if (req.getPath() == "/hello")
 	{
 		resp->setStatusCode(HttpResponse::StatusCode::k200Ok);
 		resp->setStatusMessage("OK");
 		resp->setContentType("text/plain");
-		resp->addHeader("Server", "Muduo");
+		resp->addHeader("Server", "Ryugu");
 		resp->setBody("hello, world!\n");
 	}
 	else
 	{
-		resp->setStatusCode(HttpResponse::StatusCode::k404NotFound);
-		resp->setStatusMessage("Not Found");
-		resp->setCloseConnection(true);
+		std::string path = "." + req.getPath();
+		if (!ryugu::base::fileExist(path))
+		{
+			resp->setStatusCode(HttpResponse::StatusCode::k404NotFound);
+			resp->setStatusMessage("Not Found");
+			resp->setCloseConnection(true);
+		}
+		else
+		{
+			std::string content = ryugu::base::readFile(path);
+			resp->setStatusCode(HttpResponse::StatusCode::k200Ok);
+			resp->setStatusMessage("OK");
+			resp->setContentType("text/plain");
+			resp->addHeader("Server", "Ryugu");
+			resp->setBody(content);
+		}
 	}
+}
+void init()
+{
+	mime[".html"] = "text/html";
+	mime[".avi"] = "video/x-msvideo";
+	mime[".bmp"] = "image/bmp";
+	mime[".c"] = "text/plain";
+	mime[".doc"] = "application/msword";
+	mime[".gif"] = "image/gif";
+	mime[".gz"] = "application/x-gzip";
+	mime[".htm"] = "text/html";
+	mime[".ico"] = "image/x-icon";
+	mime[".jpg"] = "image/jpeg";
+	mime[".png"] = "image/png";
+	mime[".txt"] = "text/plain";
+	mime[".mp3"] = "audio/mp3";
+	mime["default"] = "text/html";
 }
 
 int main(int argc, char* argv[])
 {
+	init();
+	int res=chdir("/mnt/c/Users/ck/Ryugu/examples/WebServer/webroot/");
+	if (res < 0)
+	{
+		ryugu::LOG_ERROR << "chroot failed, errno=" << errno;
+	}
 	ryugu::net::EventLoop loop;
 	WebServer server(&loop, ryugu::net::InetAddr(8080), "dummy");
 	server.setHttpCB(onRequest);
