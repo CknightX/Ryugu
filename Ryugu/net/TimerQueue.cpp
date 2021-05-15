@@ -5,6 +5,7 @@
 #include <cassert>
 #include "Ryugu/base/Debug.h"
 #include "Ryugu/net/TimerQueue.h"
+#include "Ryugu/base/log/Logging.h"
 
 namespace ryugu
 {
@@ -17,7 +18,7 @@ namespace ryugu
 			LOG("TimerQueue::handleRead() %" PRIu64 " at %s", howmany, now.toString().data());
 			if (n != sizeof(howmany))
 			{
-				LOG_ERROR("readTimerfd error");
+				LOG_ERROR<<"readTimerfd error";
 			}
 		}
 		// 从now到when的时间
@@ -210,7 +211,7 @@ namespace ryugu
 			int timerfd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
 			if (timerfd < 0)
 			{
-				LOG_ERROR("Failed to create timerfd");
+				LOG_ERROR<<"Failed to create timerfd";
 			}
 			return timerfd;
 		}

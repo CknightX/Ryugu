@@ -25,11 +25,10 @@ int main()
 void test1()
 {
 	EventLoop loop;
-    net::InetAddr listen_addr(8081);
-    TcpServer server(&loop,listen_addr,false);
+    net::InetAddr listen_addr(8001);
+    TcpServer server(&loop,listen_addr,true);
 	server.setMessageCb([&loop](const TcpConnPtr &conn) {
 		string mes = conn->getInput();
-		std::cout << mes.size();
 		if (mes == "quit\r\n")
 		{
 			loop.stop();

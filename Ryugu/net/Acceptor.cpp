@@ -4,6 +4,7 @@
 #include "Ryugu/net/Channel.h"
 #include "Ryugu/net/SocketsOps.h"
 #include "Ryugu/net/InetAddr.h"
+#include "Ryugu/base/log/Logging.h"
 namespace ryugu
 {
 	namespace net
@@ -50,7 +51,7 @@ namespace ryugu
 			}
 			else
 			{
-				LOG_ERROR("Acceptor::handleRead");
+				LOG_ERROR << "Acceptor::handleRead";
 			}
 		}
 	}

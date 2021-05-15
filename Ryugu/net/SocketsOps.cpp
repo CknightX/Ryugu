@@ -4,6 +4,7 @@
 #include "Ryugu/net/Endian.h"
 #include "Ryugu/base/Debug.h"
 #include "Ryugu/base/Utils.h"
+#include "Ryugu/base/log/Logging.h"
 namespace ryugu
 {
 	namespace net
@@ -46,7 +47,7 @@ namespace ryugu
 				int sockfd = ::socket(family, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
 				if (sockfd < 0)
 				{
-					LOG_ERROR("sockets::createNonblockingSocket");
+					LOG_ERROR<<"sockets::createNonblockingSocket";
 				}
 				return sockfd;
 			}
@@ -56,7 +57,7 @@ namespace ryugu
 				int ret = ::bind(sockfd, addr, static_cast<socklen_t>(sizeof(struct sockaddr_in)));
 				if (ret < 0)
 				{
-					LOG_ERROR("sockets::bind");
+					LOG_ERROR<<"sockets::bind";
 				}
 			}
 			void listen(int sockfd)
@@ -64,7 +65,7 @@ namespace ryugu
 				int ret = ::listen(sockfd, SOMAXCONN);
 				if (ret < 0)
 				{
-					LOG_ERROR("sockets::listen");
+					LOG_ERROR<<"sockets::listen";
 				}
 			}
 			int accept(int sockfd, struct sockaddr* addr)
@@ -73,7 +74,7 @@ namespace ryugu
 				int connfd = ::accept(sockfd, addr, &addr_len);
 				if (connfd < 0)
 				{
-					LOG_ERROR("sockets::accept");
+					LOG_ERROR<<"sockets::accept";
 				}
 				return connfd;
 			}
@@ -94,14 +95,14 @@ namespace ryugu
 			{
 				if (::close(sockfd) < 0)
 				{
-					LOG_ERROR("sockets::close");
+					LOG_ERROR<<"sockets::close";
 				}
 			}
 			void shutdownWrite(int sockfd)
 			{
 				if (::shutdown(sockfd, SHUT_WR) < 0)
 				{
-					LOG_ERROR("sockets::shutdownWrite");
+					LOG_ERROR<<"sockets::shutdownWrite";
 				}
 			}
 			void fillSockAddrInWithIpPort(const char* ip, uint16_t port, struct sockaddr_in* addr)
@@ -110,7 +111,7 @@ namespace ryugu
 				addr->sin_port = h2n16(port);
 				if (::inet_pton(AF_INET, ip, &addr->sin_addr) <= 0)
 				{
-					LOG_ERROR("sockets::fillSockAddrInWithIpPort");
+					LOG_ERROR<<"sockets::fillSockAddrInWithIpPort";
 				}
 			}
 			void fillSockAddrInWithIpPort(const char* ip, uint16_t port, struct sockaddr_in6* addr)
@@ -119,7 +120,7 @@ namespace ryugu
 				addr->sin6_port = h2n16(port);
 				if (::inet_pton(AF_INET6, ip, &addr->sin6_addr) <= 0)
 				{
-					LOG_ERROR("sockets::fillSockAddrIn6WithIpPort");
+					LOG_ERROR<<"sockets::fillSockAddrIn6WithIpPort";
 				}
 			}
 			std::string getIpStrFromSockAddr(const struct sockaddr* addr)
@@ -143,6 +144,7 @@ namespace ryugu
 			{
 				std::string res;
 				res.append(getIpStrFromSockAddr(addr));
+				res.push_back(':');
 				res.append(std::to_string(getPortFromSockAddr(addr)));
 				return res;
 			}
@@ -158,7 +160,7 @@ namespace ryugu
 				auto addrlen = static_cast<socklen_t>(sizeof localaddr);
 				if (::getsockname(sockfd, sockaddr_cast(&localaddr), &addrlen) < 0)
 				{
-					LOG_ERROR("sockets::getLocalAddr");
+					LOG_ERROR<<"sockets::getLocalAddr";
 				}
 				return localaddr;
 
@@ -170,7 +172,7 @@ namespace ryugu
 				auto addrlen = static_cast<socklen_t>(sizeof peeraddr);
 				if (::getpeername(sockfd, sockaddr_cast(&peeraddr), &addrlen) < 0)
 				{
-					LOG_ERROR("sockets::getLocalAddr");
+					LOG_ERROR<<"sockets::getLocalAddr";
 				}
 				return peeraddr;
 			}

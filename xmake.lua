@@ -8,6 +8,7 @@ target("ryugu")
     add_includedirs("./")
     add_files("Ryugu/net/*.cpp")
     add_files("Ryugu/base/*.cpp")
+    add_files("Ryugu/base/log/Logging.cpp")
 -- examples
 
     -- test

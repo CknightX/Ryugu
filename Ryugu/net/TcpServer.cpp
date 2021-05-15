@@ -1,13 +1,13 @@
+#include <cstring>
+#include <assert.h>
 #include "Ryugu/net/TcpServer.h"
 #include "Ryugu/net/EventLoop.h"
-#include "Ryugu/base/Debug.h"
 #include "Ryugu/net/Channel.h"
 #include "Ryugu/net/SocketsOps.h"
 #include "Ryugu/net/Acceptor.h"
 #include "Ryugu/net/EventLoopThreadPool.h"
 #include "Ryugu/net/TcpConn.h"
-#include <cstring>
-#include <assert.h>
+#include "Ryugu/base/log/Logging.h"
 namespace ryugu
 {
 	namespace net
@@ -23,12 +23,13 @@ namespace ryugu
 			acceptor_->setNewConnCallback([this](int sockfd, const InetAddr& peerAddr) {
 				newConnection(sockfd, peerAddr);
 			});
+			LOG_INFO << "TcpServer created, address:" << listenAddr.getIpPortStr();
 		}
 		TcpServer::~TcpServer()
 		{
 			// 主线程中
 			loop_->assertInLoopThread();
-			LOG("TcpServer destruct");
+			LOG_DEBUG << "TcpServer destruct";
 			for (auto& item : connMap_)
 			{
 				auto connPtr = item.second;
@@ -82,7 +83,7 @@ namespace ryugu
 		}
 		void TcpServer::removeConnectionInLoop(const TcpConnPtr& conn)
 		{
-			LOG("removeConnectionInLoop.");
+			LOG_DEBUG << "removeConnectionInLoop.";
 			connMap_.erase(conn->getFd());
 			auto ioLoop = conn->getLoop();
 			// 同上

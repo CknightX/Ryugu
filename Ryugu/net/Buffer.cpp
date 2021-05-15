@@ -6,6 +6,7 @@
 #include "Ryugu/net/Buffer.h"
 #include "Ryugu/base/Debug.h"
 #include "Ryugu/net/SocketsOps.h"
+#include "Ryugu/base/log/Logging.h"
 namespace ryugu
 {
 	namespace net
@@ -82,7 +83,7 @@ namespace ryugu
 			// error
 			else
 			{
-				LOG_ERROR("Buffer::readOutToFd");
+				LOG_ERROR << "Buffer::readOutToFd";
 			}
 			return sended;
 		}

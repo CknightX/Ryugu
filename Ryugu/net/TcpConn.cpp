@@ -1,7 +1,7 @@
 #include <assert.h>
 #include "Ryugu/net/TcpConn.h"
 #include "Ryugu/net/Channel.h"
-#include "Ryugu/base/Debug.h"
+#include "Ryugu/base/log/Logging.h"
 #include "Ryugu/net/EventLoop.h"
 namespace ryugu
 {
@@ -46,7 +46,7 @@ namespace ryugu
 			}
 			else
 			{
-				LOG_ERROR("TcpConn::handleRead");
+				LOG_ERROR<<"TcpConn::handleRead";
 			}
 		}
 		void TcpConn::connectEstablished()
@@ -82,7 +82,7 @@ namespace ryugu
 				}
 				else
 				{
-					LOG_ERROR("TcpConn::handleWrite");
+					LOG_ERROR<<"TcpConn::handleWrite";
 				}
 			}
 			else
@@ -130,7 +130,7 @@ namespace ryugu
 					sended = 0;
 					if (errno != EWOULDBLOCK) // EWOULDBLOCK==EAGAIN
 					{
-						LOG_ERROR("TcpConn::sendInLoop");
+						LOG_ERROR<<"TcpConn::sendInLoop";
 					}
 				}
 			}

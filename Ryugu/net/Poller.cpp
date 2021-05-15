@@ -1,9 +1,9 @@
-#include "Ryugu/net/Poller.h"
-#include "Ryugu/base/Debug.h"
-#include "Ryugu/net/Channel.h"
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include "Ryugu/net/Poller.h"
+#include "Ryugu/net/Channel.h"
+#include "Ryugu/base/log/Logging.h"
 
 namespace ryugu
 {
@@ -18,9 +18,9 @@ namespace ryugu
 			epollFd = epoll_create1(0);
 			if (epollFd < 0)
 			{
-				LOG_ERROR("epoll_create error %d", errno);
+				LOG_ERROR << "epoll_create error" << errno;
 			}
-			LOG("poller epoll %d created", epollFd);
+			LOG_DEBUG << "epoll fd=" << epollFd << " created";
 		}
 
 		Epoll::~Epoll()
@@ -28,7 +28,7 @@ namespace ryugu
 			// 关闭epoll的fd
 			::close(epollFd);
 
-			LOG("poller %d destroyed", epollFd);
+			LOG_DEBUG << "poller destroyed fd=" << epollFd;
 		}
 
 		void Epoll::addChannel(Channel* ch)
@@ -38,15 +38,14 @@ namespace ryugu
 			memset(&ev, 0, sizeof(ev));
 			ev.events = ch->getEvents();
 			ev.data.ptr = ch;
-			LOG("adding channel %lld events %u fd %d epoll %d", (long long)ch->getId(), ch->getEvents(), ch->getFd(), epollFd);
 			int r = epoll_ctl(epollFd, EPOLL_CTL_ADD, ch->getFd(), &ev);
 			if (r < 0)
 			{
-				LOG("epoll_ctl add failed %d", errno);
+				LOG_ERROR << "epoll_ctl add failed %d" << errno;
 				return;
 			}
 			liveChannels.insert(ch);
-			LOG("add ok.");
+			LOG_DEBUG<<"add ok.";
 		}
 
 		void Epoll::updateChannel(Channel* ch)
@@ -55,11 +54,10 @@ namespace ryugu
 			memset(&ev, 0, sizeof ev);
 			ev.events = ch->getEvents();
 			ev.data.ptr = static_cast<void*>(ch);
-			LOG("modifying channel %lld fd %d events %u epoll %d", (long long)ch->getId(), ch->getEvents(), ch->getFd(), epollFd);
-			int r = epoll_ctl(epollFd, EPOLL_CTL_ADD, ch->getFd(), &ev);
+			int r = epoll_ctl(epollFd, EPOLL_CTL_MOD, ch->getFd(), &ev);
 			if (r < 0)
 			{
-				LOG_ERROR("epoll_ctl add failed %d", errno);
+				LOG_ERROR << "epoll_ctl update failed " << errno;
 				return;
 			}
 		}
@@ -70,7 +68,7 @@ namespace ryugu
 			int r = epoll_ctl(epollFd, EPOLL_CTL_DEL, ch->getFd(), NULL);
 			if (r < 0)
 			{
-				LOG_ERROR("epoll_ctl del failed %d", errno);
+				LOG_ERROR << "epoll_ctl del failed" << errno;
 			}
 		}
 		void Epoll::loopOnce(int waitMs)
@@ -92,12 +90,12 @@ namespace ryugu
 					// }
 					if (events & cstWriteEvent)
 					{
-						LOG("new write event.");
+						LOG_DEBUG << "new write event.";
 						ch->handleWrite();
 					}
 					if (events & cstReadEvent)
 					{
-						LOG("new read event.");
+						LOG_DEBUG << "new read event.";
 						ch->handleRead();
 					}
 				}

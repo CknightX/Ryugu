@@ -1,6 +1,8 @@
-#include "Ryugu/net/EventLoop.h"
 #include <unistd.h>
 #include <sys/eventfd.h>
+#include "Ryugu/net/EventLoop.h"
+#include "Ryugu/base/log/Logging.h"
+
 namespace ryugu
 {
 	namespace net
@@ -10,7 +12,7 @@ namespace ryugu
 			int evfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
 			if (evfd < 0)
 			{
-				LOG_ERROR("create eventfd failed.");
+				LOG_ERROR << "create eventfd failed.";
 			}
 
 			return evfd;
@@ -89,7 +91,7 @@ namespace ryugu
 		}
 		void EventLoop::abortNotInLoopThread()
 		{
-			LOG_ERROR("EventLoop::abortNotInLoopThread");
+			LOG_ERROR << "EventLoop::abortNotInLoopThread";
 		}
 
 		void EventLoop::queueInLoop(Functor cb)
@@ -126,7 +128,7 @@ namespace ryugu
 			ssize_t n = ::write(wakeupfd, &one, sizeof one);
 			if (n != sizeof one)
 			{
-				LOG_ERROR("wakeup error");
+				LOG_ERROR<<"wakeup error";
 			}
 		}
 		void EventLoop::handleEventfdRead()
@@ -135,13 +137,22 @@ namespace ryugu
 			ssize_t n = ::read(wakeupfd, &one, sizeof one);
 			if (n != sizeof one)
 			{
-				LOG_ERROR("read eventfd failed.");
+				LOG_ERROR << "read eventfd failed.";
 			}
 
 		}
 		void EventLoop::updateChannel(Channel* channel)
 		{
-			poller->updateChannel(channel);
+			if (channel->isInLoop())
+			{
+				poller->updateChannel(channel);
+			}
+			else
+			{
+				poller->addChannel(channel);
+				channel->setInLoop(true);
+			}
+
 		}
 		void EventLoop::removeChannel(Channel* channel)
 		{

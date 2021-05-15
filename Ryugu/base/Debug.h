@@ -1,6 +1,5 @@
 #pragma once
 
-#define DEBUG
 
 
 #include <cstdio>

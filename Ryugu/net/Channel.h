@@ -53,8 +53,10 @@ namespace ryugu
 			void update();
 			void remove();
 
-			bool isReadEnabled() { return events & cstReadEvent; }
-			bool isWriteEnabled() { return events & cstWriteEvent; }
+			bool isReadEnabled() const { return events & cstReadEvent; }
+			bool isWriteEnabled() const { return events & cstWriteEvent; }
+			bool isInLoop() const { return inLoop_; }
+			void setInLoop(bool isIn) { inLoop_ = isIn; }
 
 			void handleRead();
 			void handleWrite();
@@ -65,6 +67,7 @@ namespace ryugu
 			// 执行channel的回调函数时，lock之，防止过程中TcpConn意外析构而导致自身被析构
 			std::weak_ptr<void> tie_;
 			bool tied_;
+			bool inLoop_;
 
 			EventLoop* loop;
 			Poller* poller;

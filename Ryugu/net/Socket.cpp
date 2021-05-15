@@ -1,9 +1,11 @@
+#include <netinet/tcp.h>
+#include <netinet/in.h>
 #include "Ryugu/net/Socket.h"
 #include "Ryugu/net/InetAddr.h"
 #include "Ryugu/net/SocketsOps.h"
 #include "Ryugu/base/Utils.h"
-#include <netinet/tcp.h>
-#include <netinet/in.h>
+#include "Ryugu/base/log/Logging.h"
+
 namespace ryugu
 {
 	namespace net
@@ -41,7 +43,20 @@ namespace ryugu
 		}
 		void Socket::setReusePort(bool enable)
 		{
-			// TODO
+		#ifdef SO_REUSEPORT
+			int optval = enable ? 1 : 0;
+			int ret = ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEPORT,
+				&optval, static_cast<socklen_t>(sizeof optval));
+			if (ret < 0 && enable)
+			{
+				LOG_ERROR << "SO_REUSEPORT failed.";
+			}
+		#else
+			if (enable)
+			{
+				LOG_ERROR << "SO_REUSEPORT is not supported.";
+			}
+		#endif
 		}
 		void Socket::setKeepAlive(bool enable)
 		{

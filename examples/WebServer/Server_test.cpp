@@ -30,7 +30,7 @@ void onRequest(const HttpRequest& req, HttpResponse* resp)
 		resp->setStatusMessage("OK");
 		resp->setContentType("text/html");
 		resp->addHeader("Server", "Muduo");
-		string now = ryugu::base::Timestamp::getNow().toString();
+		string now = ryugu::base::Timestamp::getNow().toPrettyString();
 		resp->setBody("<html><head><title>This is title</title></head>"
 			"<body><h1>Hello</h1>Now is " + now +
 			"</body></html>");
@@ -61,7 +61,7 @@ void onRequest(const HttpRequest& req, HttpResponse* resp)
 int main(int argc, char* argv[])
 {
 	ryugu::net::EventLoop loop;
-	WebServer server(&loop, ryugu::net::InetAddr(8000), "dummy");
+	WebServer server(&loop, ryugu::net::InetAddr(8080), "dummy");
 	server.setHttpCB(onRequest);
 	server.setThreadNum(1);
 	server.start();

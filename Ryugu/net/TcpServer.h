@@ -27,7 +27,7 @@ namespace ryugu
 		class TcpServer : base::Noncopyable
 		{
 		public:
-			TcpServer(EventLoop* _loop, const InetAddr&, bool);
+			TcpServer(EventLoop* _loop, const InetAddr&, bool reUsePort=true);
 			~TcpServer();
 			void setThreadNum(int num);
 			void start();
