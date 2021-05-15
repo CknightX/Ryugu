@@ -25,6 +25,7 @@ public:
 	bool parseRequest(ryugu::net::Buffer* buffer,ryugu::base::Timestamp receiveTime);
 	bool gotAll() const { return state_ == ParseState::kGotAll; }
 	void reset();
+	bool close_ = false;
 private:
 	bool parseRequestLine(const char* begin,const char* end);
 	ParseState state_;
@@ -56,10 +57,13 @@ bool HttpContext::parseRequestLine(const char* begin, const char* end)
 			{
 				request_.setPath(std::string(start, question));
 				request_.setQuery(std::string(question, space));
+
 			}
 			else
 			{
 				request_.setPath(std::string(start, space));
+				if (request_.getPath() == "/quit")
+					close_ = true;
 			}
 			start = space + 1;
 			succeed = end - start == 8 && std::equal(start, end - 1, "HTTP/1.");

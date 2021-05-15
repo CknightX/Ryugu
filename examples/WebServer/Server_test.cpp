@@ -49,6 +49,15 @@ void onRequest(const HttpRequest& req, HttpResponse* resp)
 		resp->addHeader("Server", "Ryugu");
 		resp->setBody("hello, world!\n");
 	}
+	else if (req.getPath() == "/quit")
+	{
+		resp->setStatusCode(HttpResponse::StatusCode::k200Ok);
+		resp->setStatusMessage("OK");
+		resp->setContentType("text/plain");
+		resp->addHeader("Server", "Ryugu");
+		resp->setBody("bye!\n");
+
+	}
 	else
 	{
 		std::string path = "." + req.getPath();
@@ -98,7 +107,7 @@ int main(int argc, char* argv[])
 	ryugu::net::EventLoop loop;
 	WebServer server(&loop, ryugu::net::InetAddr(8080), "dummy");
 	server.setHttpCB(onRequest);
-	server.setThreadNum(1);
+	server.setThreadNum(5);
 	server.start();
 	loop.loop();
 }

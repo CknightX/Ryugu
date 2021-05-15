@@ -51,8 +51,8 @@ namespace ryugu
 		case LogLevel::DEBUG:  // white
 			ss_ << "\033[37m";
 			break;
-		case LogLevel::INFO:   // blue
-			ss_ << "\033[34m";
+		case LogLevel::INFO:   // green
+			ss_ << "\033[32m";
 			break;
 		case LogLevel::WARN:   // yello
 			ss_ << "\033[33m";

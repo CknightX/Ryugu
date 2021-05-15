@@ -23,6 +23,7 @@ public:
 private:
 	ryugu::net::TcpServer server_;
 	HttpCallback httpCB_;
+	bool close_ = false;
 
 	void onConnection(const ryugu::net::TcpConnPtr& conn);
 	void onMessage(const ryugu::net::TcpConnPtr& conn);
@@ -69,6 +70,11 @@ void WebServer::onMessage(const ryugu::net::TcpConnPtr& conn)
 	{
 		onRequest(conn, context->getRequest());
 		context->reset();
+	}
+	if (context->close_)
+	{
+		ryugu::LOG_INFO << "quit";
+		server_.getLoop()->stop();
 	}
 }
 // 返回响应报文
