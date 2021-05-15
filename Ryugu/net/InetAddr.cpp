@@ -40,7 +40,7 @@ namespace ryugu
 			}
 			else
 			{
-				memset(&addr_, 0,sizeof(addr_));
+				memset(&addr_, 0, sizeof(addr_));
 				sockets::fillSockAddrInWithIpPort(ip.c_str(), port, &addr_);
 			}
 		}

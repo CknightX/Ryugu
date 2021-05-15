@@ -11,14 +11,10 @@ namespace ryugu
 		{
 		public:
 			explicit InetAddr(uint16_t port=0, bool lookbackOnly = false, bool ipv6 = false);
+			explicit InetAddr(const struct sockaddr_in& addr) :addr_(addr) {}
+			explicit InetAddr(const struct sockaddr_in6& addr6) :addr6_(addr6) {}
 			InetAddr(std::string ip, uint16_t port, bool ipv6 = false);
 
-			explicit InetAddr(const struct sockaddr_in& addr)
-				:addr_(addr)
-			{}
-			explicit InetAddr(const struct sockaddr_in6& addr6)
-				:addr6_(addr6)
-			{}
 			sa_family_t family() const { return addr_.sin_family; }
 			std::string getIpStr() const;
 			std::string getIpPortStr() const;

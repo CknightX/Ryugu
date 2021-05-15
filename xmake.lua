@@ -8,13 +8,25 @@ target("ryugu")
     add_includedirs("./")
     add_files("Ryugu/net/*.cpp")
     add_files("Ryugu/base/*.cpp")
--- simples
+-- examples
+
+    -- test
 target("test")
     set_kind("binary")
     add_deps("ryugu")
     add_includedirs("./")
     add_files("examples/Test/*.cpp")
-
+target("timer_test")
+    set_kind("binary")
+    add_deps("ryugu")
+    add_includedirs("./")
+    add_files("examples/Test/TimerTest/*.cpp")
+target("logger_test")
+    set_kind("binary")
+    add_deps("ryugu")
+    add_includedirs("./")
+	add_files("Ryugu/base/log/*.cpp")
+    -- others
 target("webserver")
     set_kind("binary")
     add_deps("ryugu")

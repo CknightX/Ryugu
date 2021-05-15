@@ -32,7 +32,7 @@ namespace ryugu
 			void loop();
 			void stop() { isStop = true; }
 
-			// 定时器任务
+			// 定时器任务 seconds
 			TimerId runAt(base::Timestamp time, TimerCallback cb);
 			TimerId runAfter(double delay, TimerCallback cb);
 			TimerId runEvery(double interval, TimerCallback cb);

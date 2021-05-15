@@ -15,7 +15,7 @@ namespace ryugu
 		TcpServer::TcpServer(EventLoop* loop, const net::InetAddr& listenAddr, bool reusePort)
 			:loop_(loop),
 			acceptor_(new Acceptor(loop, listenAddr, reusePort)),
-			threadPool_(new EventLoopThreadPool(loop_, "test")),
+			threadPool_(new EventLoopThreadPool(loop, "test")),
 			connCb(nullptr),
 			messageCb(nullptr)
 

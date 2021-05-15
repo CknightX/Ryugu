@@ -1,4 +1,4 @@
-#include<iostream>
+#include <iostream>
 #include <string>
 #include "Ryugu/base/Debug.h"
 #include "Ryugu/net/EventLoopThread.h"
@@ -25,8 +25,7 @@ int main()
 void test1()
 {
 	EventLoop loop;
-	// ten threads..
-    net::InetAddr listen_addr("",8081);
+    net::InetAddr listen_addr(8081);
     TcpServer server(&loop,listen_addr,false);
 	server.setMessageCb([&loop](const TcpConnPtr &conn) {
 		string mes = conn->getInput();

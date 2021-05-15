@@ -61,7 +61,7 @@ void onRequest(const HttpRequest& req, HttpResponse* resp)
 int main(int argc, char* argv[])
 {
 	ryugu::net::EventLoop loop;
-	WebServer server(&loop, ryugu::net::InetAddr("",8000), "dummy");
+	WebServer server(&loop, ryugu::net::InetAddr(8000), "dummy");
 	server.setHttpCB(onRequest);
 	server.setThreadNum(1);
 	server.start();
