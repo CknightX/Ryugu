@@ -1,13 +1,13 @@
-#include "WebServer.h"
-#include "HttpRequest.h"
-#include "HttpContext.h"
-#include "Ryugu/EventLoop.h"
-#include "Ryugu/InetAddr.h"
-#include "Ryugu/Timestamp.h"
 
 #include <iostream>
 #include <unordered_map>
 #include <string>
+#include "Ryugu/net/EventLoop.h"
+#include "Ryugu/net/InetAddr.h"
+#include "Ryugu/base/Timestamp.h"
+#include "WebServer.h"
+#include "HttpRequest.h"
+#include "HttpContext.h"
 using std::string;
 
 extern char favicon[555];
@@ -30,7 +30,7 @@ void onRequest(const HttpRequest& req, HttpResponse* resp)
 		resp->setStatusMessage("OK");
 		resp->setContentType("text/html");
 		resp->addHeader("Server", "Muduo");
-		string now = ryugu::Timestamp::getNow().toString();
+		string now = ryugu::base::Timestamp::getNow().toString();
 		resp->setBody("<html><head><title>This is title</title></head>"
 			"<body><h1>Hello</h1>Now is " + now +
 			"</body></html>");

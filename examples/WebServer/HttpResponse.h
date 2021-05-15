@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Ryugu/Copyable.h"
-#include "Ryugu/Buffer.h"
 #include <unordered_map>
 #include <string>
+#include "Ryugu/base/Copyable.h"
+#include "Ryugu/net/Buffer.h"
 
 
 class HttpResponse : public ryugu::base::Copyable

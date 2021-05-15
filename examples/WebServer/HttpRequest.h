@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Ryugu/Copyable.h"
-#include "Ryugu/Timestamp.h"
 
 #include <map>
 #include <cassert>
 #include <string>
+#include "Ryugu/base/Copyable.h"
+#include "Ryugu/base/Timestamp.h"
 
 
 class HttpRequest : public ryugu::base::Copyable
@@ -48,7 +48,7 @@ public:
 	const std::string& getPath() const { return path_; }
 	void setQuery(const std::string& query) { query_ = query; }
 	const std::string& getQuery() const { return query_; }
-	void setReceiveTime(ryugu::Timestamp rt) { receiveTime_ = rt; }
+	void setReceiveTime(ryugu::base::Timestamp rt) { receiveTime_ = rt; }
 	void addHeader(const std::string& field, const std::string& value)
 	{
 		headers_[field] = value;
@@ -73,6 +73,6 @@ private:
 	Version version_;
 	std::string path_;
 	std::string query_;
-	ryugu::Timestamp receiveTime_;
+	ryugu::base::Timestamp receiveTime_;
 	std::unordered_map<std::string, std::string> headers_;
 };

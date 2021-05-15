@@ -1,9 +1,9 @@
 #pragma once
-#include "Ryugu/Copyable.h"
-#include "Ryugu/Buffer.h"
-#include "Ryugu/Debug.h"
-#include "HttpRequest.h"
 #include <algorithm>
+#include "Ryugu/base/Copyable.h"
+#include "Ryugu/net/Buffer.h"
+#include "Ryugu/base/Debug.h"
+#include "HttpRequest.h"
 
 
 class HttpContext : public ryugu::base::Copyable
@@ -22,7 +22,7 @@ public:
 
 	}
 	HttpRequest getRequest() const { return request_; }
-	bool parseRequest(ryugu::net::Buffer* buffer,ryugu::Timestamp receiveTime);
+	bool parseRequest(ryugu::net::Buffer* buffer,ryugu::base::Timestamp receiveTime);
 	bool gotAll() const { return state_ == ParseState::kGotAll; }
 	void reset();
 private:
@@ -82,7 +82,7 @@ bool HttpContext::parseRequestLine(const char* begin, const char* end)
 
 	return succeed;
 }
-bool HttpContext::parseRequest(ryugu::net::Buffer* buffer, ryugu::Timestamp receiveTime)
+bool HttpContext::parseRequest(ryugu::net::Buffer* buffer, ryugu::base::Timestamp receiveTime)
 {
 	bool ok = true;
 	bool hasMore = true;

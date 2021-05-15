@@ -1,16 +1,16 @@
 #pragma once
 
-#include "Ryugu/TcpServer.h"
-#include "Ryugu/Buffer.h"
-#include "Ryugu/Noncopyable.h"
-#include "Ryugu/TcpConn.h"
+#include <string>
+#include<iostream>
+#include "Ryugu/net/TcpServer.h"
+#include "Ryugu/net/Buffer.h"
+#include "Ryugu/base/Noncopyable.h"
+#include "Ryugu/net/TcpConn.h"
 #include "HttpContext.h"
 #include "HttpRequest.h"
 #include "HttpResponse.h"
-#include <string>
-#include<iostream>
 
-class WebServer : ryugu::noncopyable
+class WebServer : ryugu::base::Noncopyable
 {
 public:
 	using HttpCallback = std::function<void(const HttpRequest&, HttpResponse*)>;
@@ -59,7 +59,7 @@ void WebServer::onMessage(const ryugu::net::TcpConnPtr& conn)
 	*/
 	auto context = std::static_pointer_cast<HttpContext>(conn->getContext());
 	// 解析过程中出现错误
-	if (!context->parseRequest(conn->getBuffer(),ryugu::Timestamp::getNow()))
+	if (!context->parseRequest(conn->getBuffer(),ryugu::base::Timestamp::getNow()))
 	{
 		conn->send("HTTP/1.1 400 Bad Request\r\n\r\n");
 		conn->shutdown();

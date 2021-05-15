@@ -1,11 +1,11 @@
-#include "Ryugu/RyuguNet.h"
-#include "Ryugu/Debug.h"
-#include "Ryugu/EventLoopThread.h"
-#include "Ryugu/Net.h"
-#include "Ryugu/InetAddr.h"
-#include "Ryugu/TcpConn.h"
 #include<iostream>
 #include <string>
+#include "Ryugu/base/Debug.h"
+#include "Ryugu/net/EventLoopThread.h"
+#include "Ryugu/net/EventLoop.h"
+#include "Ryugu/net/InetAddr.h"
+#include "Ryugu/net/TcpConn.h"
+#include "Ryugu/net/TcpServer.h"
 
 using namespace ryugu;
 using namespace ryugu::net;
@@ -35,17 +35,9 @@ void test1()
 		{
 			loop.stop();
 		}
-		string header = "";
-		header += "HTTP/1.1 200 OK\r\n";
-		header += "Content-type: text/html\r\n";
-		header += "Content-length: 1\r\n";
-		header += "Connection: keep-alive\r\n";
-		header += "\r\n";
-		header += "c";
-		conn->send(header);
-		//conn->send(mes);
+		conn->send(mes);
 	});
-	server.setThreadNum(5);
+	server.setThreadNum(1);
     server.start();
 	loop.loop();
 }
